@@ -17,7 +17,7 @@ swagger:
 git:
 	git add .
 	git commit -a -m "$m"
-	git push -u origin main
+	git push -u origin master
 
 gen:
 	rm app/internal/pb/* || true
