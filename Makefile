@@ -11,9 +11,6 @@ $(APP_BIN):
 clean:
 	rm -rf ./app/build || true
 
-swagger:
-	swag init -g ./app/cmd/main.go -o ./app/docs
-
 git:
 	git add .
 	git commit -a -m "$m"

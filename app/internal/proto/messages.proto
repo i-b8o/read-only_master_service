@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "./;pb";
+option go_package = "./;self_pb";
 
 message ID {
     uint64 ID = 1;

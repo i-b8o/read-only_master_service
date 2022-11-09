@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"regulations_supreme_service/internal/pb"
+	self_pb "regulations_supreme_service/internal/pb"
 
 	"github.com/i-b8o/logging"
 )
 
 type RegulationStorage interface {
-	Create(ctx context.Context, regulation *pb.Regulation) (uint64, error)
+	Create(ctx context.Context, regulation *self_pb.Regulation) (uint64, error)
 	Delete(ctx context.Context, regulationID uint64) error
 }
 

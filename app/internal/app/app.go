@@ -33,9 +33,28 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	chapterAdapter := postgressql.NewChapterStorage(pgClient)
-	paragraphAdapter := postgressql.NewParagraphStorage(pgClient)
-	regAdapter := postgressql.NewRegulationStorage(pgClient)
+
+	absentAdapter := postgressql.NewAbsentStorage(pgClient)
+	pseudoChapter := postgressql.NewPseudoChapter(pgClient)
+	pseudoRegulation := postgressql.NewPseudoRegulation(pgClient)
+
+	writableConn, err := grpc.Dial(
+		fmt.Sprintf("%s:%s", config.WritableService.IP, config.WritableService.Port),
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		return App{}, err
+	}
+
+	readOnlyConn, err := grpc.Dial(
+		fmt.Sprintf("%s:%s", config.ReadOnlyService.IP, config.ReadOnlyService.Port),
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		return App{}, err
+	}
+
+	writableClient := pb.Ne(conn)
 
 	regulationGrpcService := service.NewWritableRegulationGRPCService(regAdapter, chapterAdapter, paragraphAdapter, logger)
 

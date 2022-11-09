@@ -20,6 +20,14 @@ type Config struct {
 		IP   string `env:"REGULATIONS_SUPREME_SERVICE_IP" env-default:"0.0.0.0"`
 		Port string `env:"REGULATIONS_SUPREME_SERVICE_PORT" env-default:"20000"`
 	}
+	WritableService struct {
+		IP   string `env:"REGULATIONS_WRITABLE_SERVICE_IP" env-default:"0.0.0.0"`
+		Port string `env:"REGULATIONS_WRITABLE_SERVICE_PORT" env-default:"20000"`
+	}
+	ReadOnlyService struct {
+		IP   string `env:"REGULATIONS_READ_ONLY_SERVICE_IP" env-default:"0.0.0.0"`
+		Port string `env:"REGULATIONS_READ_ONLY_SERVICE_PORT" env-default:"20000"`
+	}
 	// TODO upgrade env variables for the user with only select permission
 	PostgreSQL struct {
 		PostgreUsername string `env:"PSQL_USERNAME_REGULATIONS_SUPREME_SERVICE" env-required:"true"`
