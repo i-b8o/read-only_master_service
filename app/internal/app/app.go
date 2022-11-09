@@ -6,12 +6,15 @@ import (
 	"net"
 	postgressql "regulations_supreme_service/internal/adapters/db/postgresql"
 	"regulations_supreme_service/internal/config"
-	"regulations_supreme_service/internal/pb"
+
 	"regulations_supreme_service/internal/service"
 	"regulations_supreme_service/pkg/client/postgresql"
 	"time"
 
 	"github.com/i-b8o/logging"
+
+	r_pb "github.com/i-b8o/regulations_contracts/pb/read_only/v1"
+	w_pb "github.com/i-b8o/regulations_contracts/pb/writable/v1"
 	"google.golang.org/grpc"
 )
 
@@ -54,7 +57,8 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 		return App{}, err
 	}
 
-	writableClient := pb.Ne(conn)
+	writableClient := w_pb.NewWritableRegulationGRPCClient(writableConn)
+	readOnlyClient := r_pb.NewReadOnlyRegulationGRPCClient(readOnlyConn)
 
 	regulationGrpcService := service.NewWritableRegulationGRPCService(regAdapter, chapterAdapter, paragraphAdapter, logger)
 
