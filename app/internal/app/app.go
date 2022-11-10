@@ -6,59 +6,33 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 
 	"time"
 
-	_ "regulations_supreme_service/docs"
 	postgressql "regulations_supreme_service/internal/adapters/db/postgresql"
 	"regulations_supreme_service/internal/config"
-	"regulations_supreme_service/internal/domain/service"
+
 	chapter_usecase "regulations_supreme_service/internal/domain/usecase/chapter"
 	paragraph_usecase "regulations_supreme_service/internal/domain/usecase/paragraph"
 	regulation_usecase "regulations_supreme_service/internal/domain/usecase/regulation"
 	search_usecase "regulations_supreme_service/internal/domain/usecase/search"
-	templateManager "regulations_supreme_service/internal/templmanager"
-	grpc_service "regulations_supreme_service/internal/transport/grpc/service"
-	v1 "regulations_supreme_service/internal/transport/http/v1"
-
-	pb "github.com/i-b8o/pbs/regulations"
-	"golang.org/x/sync/errgroup"
 
 	"regulations_supreme_service/pkg/client/postgresql"
-	"regulations_supreme_service/pkg/metric"
 
 	"github.com/i-b8o/logging"
-	"google.golang.org/grpc"
-
-	"github.com/julienschmidt/httprouter"
+	pb "github.com/i-b8o/pbs/regulations"
 	"github.com/rs/cors"
-	httpSwagger "github.com/swaggo/http-swagger"
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
 )
 
 type App struct {
 	cfg        *config.Config
-	router     *httprouter.Router
-	httpServer *http.Server
 	grpcServer *grpc.Server
 }
 
 func NewApp(ctx context.Context, config *config.Config) (App, error) {
-	logger := logging.GetLogger(ctx)
-
-	logger.Print("router initializing")
-	router := httprouter.New()
-	logger.Print("swagger docs initializing")
-	// hosting swagger specification
-	router.Handler(http.MethodGet, "/swagger", http.RedirectHandler("swagger/index.html", http.StatusMovedPermanently))
-	router.Handler(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
-
-	curdir, _ := os.Getwd()
-	router.ServeFiles("/static/*filepath", http.Dir(curdir+"/internal/static/"))
-
-	logger.Print("heartbeat initializing")
-	metricHandler := metric.Handler{}
-	metricHandler.Register(router)
+	logger := logging.GetLogger(config.Logger.LogLevel)
 
 	logger.Print("Postgres initializing")
 	pgConfig := postgresql.NewPgConfig(
@@ -71,32 +45,23 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 		logger.Fatal(err)
 	}
 
-	logger.Print("loading templates")
-	templateManager := templateManager.NewTemplateManager(config.Template.TemplatePath)
-	templateManager.LoadTemplates(ctx)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	linkAdapter := postgressql.NewLinkStorage(pgClient)
-	chapterAdapter := postgressql.NewChapterStorage(pgClient)
-	paragraphAdapter := postgressql.NewParagraphStorage(pgClient)
-	regAdapter := postgressql.NewRegulationStorage(pgClient)
-	speechAdapter := postgressql.NewSpeechStorage(pgClient)
-	searchAdapter := postgressql.NewSearchStorage(pgClient)
 	absentAdapter := postgressql.NewAbsentStorage(pgClient)
+	linkAdapter := postgressql.NewLinkStorage(pgClient)
+	pseudoChapterAdapter := postgressql.NewPseudoChapter(pgClient)
+	pseudoChapterAdapter := postgressql.NewPseudoChapter(pgClient)
+	speechAdapter := postgressql.NewSpeechStorage(pgClient)
 
-	linkService := service.NewLinkService(linkAdapter)
-	chapterService := service.NewChapterService(chapterAdapter)
-	paragraphService := service.NewParagraphService(paragraphAdapter)
-	regService := service.NewRegulationService(regAdapter)
-	speechService := service.NewSpeechService(speechAdapter)
-	searchService := service.NewSearchService(searchAdapter)
-	absentService := service.NewAbsentService(absentAdapter)
+	// linkService := service.NewLinkService(linkAdapter)
+	// chapterService := service.NewChapterService(chapterAdapter)
+	// paragraphService := service.NewParagraphService(paragraphAdapter)
+	// regService := service.NewRegulationService(regAdapter)
+	// speechService := service.NewSpeechService(speechAdapter)
+	// searchService := service.NewSearchService(searchAdapter)
+	// absentService := service.NewAbsentService(absentAdapter)
 
+	regUsecase := regulation_usecase.NewRegulationUsecase(regService, chapterService, paragraphService, linkService, speechService, absentService)
 	paragraphUsecase := paragraph_usecase.NewParagraphUsecase(paragraphService, chapterService, linkService, speechService)
 	chapterUsecase := chapter_usecase.NewChapterUsecase(chapterService, paragraphService, linkService, regService)
-	regUsecase := regulation_usecase.NewRegulationUsecase(regService, chapterService, paragraphService, linkService, speechService, absentService)
 	searchUsecase := search_usecase.NewSearchUsecase(searchService)
 
 	paragraphHandler := v1.NewParagraphHandler(paragraphUsecase, config.HTTP.UseToInsertData)
