@@ -3,7 +3,7 @@ package usecase_chapter
 import (
 	"context"
 	"fmt"
-	"prod_serv/internal/domain/entity"
+	"regulations_supreme_service/internal/domain/entity"
 	"strconv"
 )
 

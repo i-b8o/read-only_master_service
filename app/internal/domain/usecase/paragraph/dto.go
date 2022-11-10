@@ -1,6 +1,6 @@
 package usecase_paragraph
 
-import "prod_serv/internal/domain/entity"
+import "regulations_supreme_service/internal/domain/entity"
 
 type CreateParagraphsInput struct {
 	Paragraphs []entity.Paragraph

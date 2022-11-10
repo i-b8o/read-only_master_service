@@ -2,7 +2,7 @@ package usecase_search
 
 import (
 	"context"
-	"prod_serv/internal/domain/entity"
+	"regulations_supreme_service/internal/domain/entity"
 	"strings"
 )
 

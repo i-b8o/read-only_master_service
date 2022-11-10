@@ -3,8 +3,8 @@ package usecase_regulation
 import (
 	"context"
 	"fmt"
-	"prod_serv/internal/domain/entity"
 	"regexp"
+	"regulations_supreme_service/internal/domain/entity"
 	"strconv"
 	"strings"
 
@@ -31,12 +31,12 @@ type ParagraphService interface {
 	DeleteForChapter(ctx context.Context, chapterID uint64) error
 }
 
-type AbsentService interface {
+type AbsentAdapter interface {
 	Create(ctx context.Context, absent entity.Absent) error
 	Done(ctx context.Context, pseudo string) error
 }
 
-type LinkService interface {
+type LinkAdapter interface {
 	GetAll(ctx context.Context) ([]*entity.Link, error)
 	GetAllByChapterID(ctx context.Context, chapterID uint64) ([]*entity.Link, error)
 	// Create(ctx context.Context, link entity.Link) error
@@ -44,7 +44,7 @@ type LinkService interface {
 	DeleteForChapter(ctx context.Context, chapterID uint64) error
 }
 
-type SpeechService interface {
+type SpeechAdapter interface {
 	GetAllById(ctx context.Context, paragraphID uint64) ([]entity.Speech, error)
 	DeleteForParagraph(ctx context.Context, paragraphID uint64) error
 }
@@ -53,13 +53,13 @@ type regulationUsecase struct {
 	regulationService RegulationService
 	chapterService    ChapterService
 	paragraphService  ParagraphService
-	linkService       LinkService
-	speechService     SpeechService
-	absentService     AbsentService
+	linkAdapter       LinkAdapter
+	speechAdapter     SpeechAdapter
+	absentAdapter     AbsentAdapter
 }
 
 func NewRegulationUsecase(regulationService RegulationService, chapterService ChapterService, paragraphService ParagraphService, linkService LinkService, speechService SpeechService, absentService AbsentService) *regulationUsecase {
-	return &regulationUsecase{regulationService: regulationService, chapterService: chapterService, paragraphService: paragraphService, linkService: linkService, speechService: speechService, absentService: absentService}
+	return &regulationUsecase{regulationService: regulationService, chapterService: chapterService, paragraphService: paragraphService, linkAdapter: linkService, speechAdapter: speechService, absentAdapter: absentService}
 }
 
 func (u regulationUsecase) CreateRegulation(ctx context.Context, regulation entity.Regulation) string {
@@ -67,7 +67,7 @@ func (u regulationUsecase) CreateRegulation(ctx context.Context, regulation enti
 	if err != nil {
 		return ""
 	}
-	u.absentService.Done(ctx, regulation.Pseudo)
+	u.absentAdapter.Done(ctx, regulation.Pseudo)
 	if err != nil {
 		return ""
 	}
@@ -172,7 +172,7 @@ func paragraphsDart(ctx context.Context, paragraphs []entity.Paragraph, u regula
 
 		var speechTextSlice []string
 		if p.ID > 0 {
-			speechSlice, err := u.speechService.GetAllById(ctx, p.ID)
+			speechSlice, err := u.speechAdapter.GetAllById(ctx, p.ID)
 			if err != nil {
 				return ""
 			}
@@ -211,7 +211,7 @@ func (u regulationUsecase) AllLinksDart(ctx context.Context, regulationID uint64
 	var links []*entity.Link
 
 	for _, chapter := range chapters {
-		l, _ := u.linkService.GetAllByChapterID(ctx, chapter.ID)
+		l, _ := u.linkAdapter.GetAllByChapterID(ctx, chapter.ID)
 		links = append(links, l...)
 	}
 
@@ -299,7 +299,7 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 					if rID == 0 {
 						fmt.Printf("ID: %d, %s, %d|\n", rID, ID, paragraph.ID)
 						absent := entity.Absent{Pseudo: ID, ParagraphID: paragraph.ID}
-						err := u.absentService.Create(ctx, absent)
+						err := u.absentAdapter.Create(ctx, absent)
 						if err != nil {
 							fmt.Println(err.Error())
 						}
@@ -310,7 +310,7 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 				IDs := strings.Split(href, "/")
 				if (len(IDs) < 3) || (len(IDs[0]) == 0) || (len(IDs[1]) == 0) || (len(IDs[2]) == 0) {
 					absent := entity.Absent{Pseudo: href, ParagraphID: paragraph.ID}
-					u.absentService.Create(ctx, absent)
+					u.absentAdapter.Create(ctx, absent)
 					continue
 				}
 				regID, err := u.regulationService.GetIDByPseudo(ctx, IDs[0])
@@ -319,7 +319,7 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 				}
 				if regID == 0 {
 					absent := entity.Absent{Pseudo: IDs[0], ParagraphID: paragraph.ID}
-					u.absentService.Create(ctx, absent)
+					u.absentAdapter.Create(ctx, absent)
 					continue
 				}
 				chID, err := u.chapterService.GetIDByPseudo(ctx, IDs[1])
@@ -351,7 +351,7 @@ func (u regulationUsecase) DeleteRegulation(ctx context.Context, regulationID ui
 	}
 
 	for _, chapter := range chapters {
-		err = u.linkService.DeleteForChapter(ctx, chapter.ID)
+		err = u.linkAdapter.DeleteForChapter(ctx, chapter.ID)
 		if err != nil {
 			return err
 		}
@@ -360,7 +360,7 @@ func (u regulationUsecase) DeleteRegulation(ctx context.Context, regulationID ui
 			return err
 		}
 		for _, paragraph := range paragraphs {
-			err = u.speechService.DeleteForParagraph(ctx, paragraph.ID)
+			err = u.speechAdapter.DeleteForParagraph(ctx, paragraph.ID)
 			if err != nil {
 				return err
 			}
