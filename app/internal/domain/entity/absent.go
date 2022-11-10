@@ -1,6 +1,6 @@
 package entity
 
 type Absent struct {
-	Pseudo      string
-	ParagraphID uint64
+	Pseudo      string `json:"pseudo,omitempty"`
+	ParagraphID uint64 `json:"p_id,omitempty"`
 }

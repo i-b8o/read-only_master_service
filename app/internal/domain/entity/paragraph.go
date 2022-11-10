@@ -1,14 +1,14 @@
 package entity
 
 type Paragraph struct {
-	ID        uint64
-	Num       uint64
-	HasLinks  bool
-	IsTable   bool
-	IsNFT     bool
-	Class     string
-	Content   string
-	ChapterID uint64
+	ID        uint64 `json:"id"`
+	Num       uint64 `json:"num"`
+	HasLinks  bool   `json:"has_links"`
+	IsTable   bool   `json:"is_table"`
+	IsNFT     bool   `json:"is_nft"`
+	Class     string `json:"class,omitempty"`
+	Content   string `json:"content,omitempty"`
+	ChapterID uint64 `json:"chapterid,omitempty"`
 }
 
 type ParagraphsInput struct {

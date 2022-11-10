@@ -11,30 +11,40 @@ type Config struct {
 	IsDebug       bool `env:"IS_DEBUG" env-default:"false"`
 	IsDevelopment bool `env:"IS_DEV" env-default:"false"`
 	Logger        struct {
-		LogLevel       string `env:"LOG_LEVEL" env-default:"trace"`
 		LoggerUsername string `env:"TELEGRAM_USERNAME" env-required:"true"`
 		Token          string `env:"TELEGRAM_TOKEN" env-env-required:"true"`
 		ChatID         string `env:"TELEGRAM_CHAT_ID" env-required:"true"`
 	}
-	GRPC struct {
-		IP   string `env:"REGULATIONS_SUPREME_SERVICE_IP" env-default:"0.0.0.0"`
-		Port string `env:"REGULATIONS_SUPREME_SERVICE_PORT" env-default:"20000"`
+	Template struct {
+		TemplatePath string `env:"TEMPLATEPATH" env-required:"true"`
 	}
-	WritableService struct {
+	HTTP struct {
+		IP              string `env:"REG_BIND_IP" env-default:"0.0.0.0"`
+		Port            string `env:"REG_PORT" env-default:"10000"`
+		UseToInsertData bool   `env:"USE_HTTP_FOR_PARSING" env-default:"false"`
+	}
+	GRPC struct {
+		BindIP string `env:"GRPC_IP" env-default:"0.0.0.0"`
+		Port   string `env:"GRPC_PORT" env-default:"20000"`
+	}
+	WritableGRPC struct {
 		IP   string `env:"REGULATIONS_WRITABLE_SERVICE_IP" env-default:"0.0.0.0"`
 		Port string `env:"REGULATIONS_WRITABLE_SERVICE_PORT" env-default:"20000"`
 	}
-	ReadOnlyService struct {
-		IP   string `env:"REGULATIONS_READ_ONLY_SERVICE_IP" env-default:"0.0.0.0"`
-		Port string `env:"REGULATIONS_READ_ONLY_SERVICE_PORT" env-default:"20000"`
+
+	AppConfig struct {
+		LogLevel  string `env:"LOG_LEVEL" env-default:"trace"`
+		AdminUser struct {
+			Email    string `env:"ADMIN_EMAIL" env-default:"admin"`
+			Password string `env:"ADMIN_PWD" env-default:"admin"`
+		}
 	}
-	// TODO upgrade env variables for the user with only select permission
 	PostgreSQL struct {
-		PostgreUsername string `env:"PSQL_USERNAME_REGULATIONS_SUPREME_SERVICE" env-required:"true"`
-		Password        string `env:"PSQL_PASSWORD_REGULATIONS_SUPREME_SERVICE" env-required:"true"`
-		Host            string `env:"PSQL_HOST_REGULATIONS_SUPREME_SERVICE" env-required:"true"`
-		Port            string `env:"PSQL_PORT_REGULATIONS_SUPREME_SERVICE" env-required:"true"`
-		Database        string `env:"PSQL_DATABASE_REGULATIONS_SUPREME_SERVICE" env-required:"true"`
+		PostgreUsername string `env:"PSQL_USERNAME_REG" env-required:"true"`
+		Password        string `env:"PSQL_PASSWORD_REG" env-required:"true"`
+		Host            string `env:"PSQL_HOST_REG" env-required:"true"`
+		Port            string `env:"PSQL_PORT_REG" env-required:"true"`
+		Database        string `env:"PSQL_DATABASE_REG" env-required:"true"`
 	}
 }
 

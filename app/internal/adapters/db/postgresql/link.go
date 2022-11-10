@@ -40,30 +40,30 @@ func (ps *linkStorage) GetAll(ctx context.Context) ([]*entity.Link, error) {
 	return links, nil
 }
 
-// GetAllByChapterID returns all links associated with the given chapter ID
-func (ps *linkStorage) GetAllByChapterID(ctx context.Context, chapterID uint64) ([]*entity.Link, error) {
-	const sql = `SELECT id,c_id,paragraph_num FROM "links" WHERE c_id = $1 ORDER BY c_id`
-	var links []*entity.Link
-	rows, err := ps.client.Query(ctx, sql, chapterID)
+// // GetAllByChapterID returns all links associated with the given chapter ID
+// func (ps *linkStorage) GetAllByChapterID(ctx context.Context, chapterID uint64) ([]*entity.Link, error) {
+// 	const sql = `SELECT id,c_id,paragraph_num FROM "links" WHERE c_id = $1 ORDER BY c_id`
+// 	var links []*entity.Link
+// 	rows, err := ps.client.Query(ctx, sql, chapterID)
 
-	if err != nil {
-		return nil, err
-	}
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	defer rows.Close()
+// 	defer rows.Close()
 
-	for rows.Next() {
-		link := &entity.Link{}
-		if err = rows.Scan(
-			&link.ID, &link.ChapterID, &link.ParagraphNum); err != nil {
-			return nil, err
-		}
+// 	for rows.Next() {
+// 		link := &entity.Link{}
+// 		if err = rows.Scan(
+// 			&link.ID, &link.ChapterID, &link.ParagraphNum); err != nil {
+// 			return nil, err
+// 		}
 
-		links = append(links, link)
-	}
+// 		links = append(links, link)
+// 	}
 
-	return links, nil
-}
+// 	return links, nil
+// }
 
 // Create
 func (ps *linkStorage) Create(ctx context.Context, link entity.Link) error {
@@ -86,28 +86,28 @@ func (ps *linkStorage) DeleteForChapter(ctx context.Context, chapterID uint64) e
 	return err
 }
 
-func (ps *linkStorage) GetOneByParagraphID(ctx context.Context, paragraphID, regregulationID uint64) (entity.Link, error) {
-	const sqlCheck = `SELECT EXISTS(SELECT 1 FROM links WHERE id=$1 AND r_id=$2)`
-	var exist bool
-	checkRow := ps.client.QueryRow(ctx, sqlCheck, paragraphID, regregulationID)
-	var link entity.Link
+// func (ps *linkStorage) GetOneByParagraphID(ctx context.Context, paragraphID, regregulationID uint64) (entity.Link, error) {
+// 	const sqlCheck = `SELECT EXISTS(SELECT 1 FROM links WHERE id=$1 AND r_id=$2)`
+// 	var exist bool
+// 	checkRow := ps.client.QueryRow(ctx, sqlCheck, paragraphID, regregulationID)
+// 	var link entity.Link
 
-	err := checkRow.Scan(&exist)
-	if err != nil {
-		return entity.Link{ID: 0}, err
-	}
+// 	err := checkRow.Scan(&exist)
+// 	if err != nil {
+// 		return entity.Link{ID: 0}, err
+// 	}
 
-	if !exist {
-		return link, nil
-	}
+// 	if !exist {
+// 		return link, nil
+// 	}
 
-	const sql = `SELECT  id, paragraph_num, c_id FROM "links" WHERE id=$1 AND r_id=$2 LIMIT 1`
-	row := ps.client.QueryRow(ctx, sql, paragraphID, regregulationID)
+// 	const sql = `SELECT  id, paragraph_num, c_id FROM "links" WHERE id=$1 AND r_id=$2 LIMIT 1`
+// 	row := ps.client.QueryRow(ctx, sql, paragraphID, regregulationID)
 
-	err = row.Scan(&link.ID, &link.ParagraphNum, &link.ChapterID)
-	if err != nil {
-		return link, err
-	}
+// 	err = row.Scan(&link.ID, &link.ParagraphNum, &link.ChapterID)
+// 	if err != nil {
+// 		return link, err
+// 	}
 
-	return link, nil
-}
+// 	return link, nil
+// }

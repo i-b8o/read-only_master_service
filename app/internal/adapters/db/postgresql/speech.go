@@ -16,31 +16,31 @@ func NewSpeechStorage(client client.PostgreSQLClient) *speechStorage {
 }
 
 // GetOneById returns all speech text associated with the given paragraph ID
-func (ss *speechStorage) GetAllById(ctx context.Context, paragraphID uint64) ([]entity.Speech, error) {
-	const sql = `select order_num, content from speech where paragraph_id = $1 ORDER BY order_num`
+// func (ss *speechStorage) GetAllById(ctx context.Context, paragraphID uint64) ([]entity.Speech, error) {
+// 	const sql = `select order_num, content from speech where paragraph_id = $1 ORDER BY order_num`
 
-	var speechSlice []entity.Speech
+// 	var speechSlice []entity.Speech
 
-	rows, err := ss.client.Query(ctx, sql, paragraphID)
-	if err != nil {
-		return nil, err
-	}
+// 	rows, err := ss.client.Query(ctx, sql, paragraphID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	defer rows.Close()
+// 	defer rows.Close()
 
-	for rows.Next() {
-		speech := entity.Speech{}
-		if err = rows.Scan(
-			&speech.OrderNum, &speech.Content,
-		); err != nil {
-			return nil, err
-		}
+// 	for rows.Next() {
+// 		speech := entity.Speech{}
+// 		if err = rows.Scan(
+// 			&speech.OrderNum, &speech.Content,
+// 		); err != nil {
+// 			return nil, err
+// 		}
 
-		speechSlice = append(speechSlice, speech)
-	}
+// 		speechSlice = append(speechSlice, speech)
+// 	}
 
-	return speechSlice, nil
-}
+// 	return speechSlice, nil
+// }
 
 // Create returns the ID of the inserted chapter
 func (ss *speechStorage) Create(ctx context.Context, speech entity.Speech) (string, error) {

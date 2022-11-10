@@ -9,10 +9,10 @@ import (
 )
 
 type LinkService interface {
-	GetAll(ctx context.Context) ([]*entity.Link, error)
-	GetAllByChapterID(ctx context.Context, chapterID uint64) ([]*entity.Link, error)
+	// GetAllByChapterID(ctx context.Context, chapterID uint64) ([]*entity.Link, error)
+	// CreateForChapter(ctx context.Context, link entity.Link) error
 	Create(ctx context.Context, link entity.Link) error
-	CreateForChapter(ctx context.Context, link entity.Link) error
+	GetAll(ctx context.Context) ([]*entity.Link, error)
 }
 
 type ChapterService interface {

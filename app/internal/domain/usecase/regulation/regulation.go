@@ -5,22 +5,19 @@ import (
 	"fmt"
 	"regexp"
 	"regulations_supreme_service/internal/domain/entity"
-	"strconv"
 	"strings"
-
-	"github.com/i-b8o/nonsense"
 )
 
 type RegulationService interface {
-	GetOne(ctx context.Context, regulationID uint64) (entity.Regulation, error)
-	GetAll(ctx context.Context) ([]entity.Regulation, error)
+	// GetOne(ctx context.Context, regulationID uint64) (entity.Regulation, error)
+	// GetAll(ctx context.Context) ([]entity.Regulation, error)
 	Create(ctx context.Context, regulation entity.Regulation) (string, error)
 	DeleteRegulation(ctx context.Context, regulationID uint64) error
 	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
 }
 type ChapterService interface {
+	// GetOrderNum(ctx context.Context, id uint64) (orderNum uint64, err error)
 	GetAllById(ctx context.Context, regulationID uint64) ([]entity.Chapter, error)
-	GetOrderNum(ctx context.Context, id uint64) (orderNum uint64, err error)
 	DeleteForRegulation(ctx context.Context, regulationID uint64) error
 	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
 }
@@ -31,21 +28,21 @@ type ParagraphService interface {
 	DeleteForChapter(ctx context.Context, chapterID uint64) error
 }
 
-type AbsentAdapter interface {
+type AbsentService interface {
 	Create(ctx context.Context, absent entity.Absent) error
 	Done(ctx context.Context, pseudo string) error
 }
 
-type LinkAdapter interface {
-	GetAll(ctx context.Context) ([]*entity.Link, error)
-	GetAllByChapterID(ctx context.Context, chapterID uint64) ([]*entity.Link, error)
+type LinkService interface {
+	// GetAll(ctx context.Context) ([]*entity.Link, error)
+	// GetAllByChapterID(ctx context.Context, chapterID uint64) ([]*entity.Link, error)
 	// Create(ctx context.Context, link entity.Link) error
-	GetOneByParagraphID(ctx context.Context, paragraphID, regregulationID uint64) (entity.Link, error)
+	// GetOneByParagraphID(ctx context.Context, paragraphID, regregulationID uint64) (entity.Link, error)
 	DeleteForChapter(ctx context.Context, chapterID uint64) error
 }
 
-type SpeechAdapter interface {
-	GetAllById(ctx context.Context, paragraphID uint64) ([]entity.Speech, error)
+type SpeechService interface {
+	// GetAllById(ctx context.Context, paragraphID uint64) ([]entity.Speech, error)
 	DeleteForParagraph(ctx context.Context, paragraphID uint64) error
 }
 
@@ -53,13 +50,13 @@ type regulationUsecase struct {
 	regulationService RegulationService
 	chapterService    ChapterService
 	paragraphService  ParagraphService
-	linkAdapter       LinkAdapter
-	speechAdapter     SpeechAdapter
-	absentAdapter     AbsentAdapter
+	linkService       LinkService
+	speechService     SpeechService
+	absentService     AbsentService
 }
 
 func NewRegulationUsecase(regulationService RegulationService, chapterService ChapterService, paragraphService ParagraphService, linkService LinkService, speechService SpeechService, absentService AbsentService) *regulationUsecase {
-	return &regulationUsecase{regulationService: regulationService, chapterService: chapterService, paragraphService: paragraphService, linkAdapter: linkService, speechAdapter: speechService, absentAdapter: absentService}
+	return &regulationUsecase{regulationService: regulationService, chapterService: chapterService, paragraphService: paragraphService, linkService: linkService, speechService: speechService, absentService: absentService}
 }
 
 func (u regulationUsecase) CreateRegulation(ctx context.Context, regulation entity.Regulation) string {
@@ -67,7 +64,7 @@ func (u regulationUsecase) CreateRegulation(ctx context.Context, regulation enti
 	if err != nil {
 		return ""
 	}
-	u.absentAdapter.Done(ctx, regulation.Pseudo)
+	u.absentService.Done(ctx, regulation.Pseudo)
 	if err != nil {
 		return ""
 	}
@@ -75,191 +72,191 @@ func (u regulationUsecase) CreateRegulation(ctx context.Context, regulation enti
 	return id
 }
 
-func (u regulationUsecase) GetFullRegulationByID(ctx context.Context, regulationID uint64) (entity.Regulation, error) {
-	regulation, err := u.regulationService.GetOne(ctx, regulationID)
-	if err != nil {
-		return entity.Regulation{}, err
-	}
-	chapters, err := u.chapterService.GetAllById(ctx, regulationID)
-	if err != nil {
-		return entity.Regulation{}, err
-	}
+// func (u regulationUsecase) GetFullRegulationByID(ctx context.Context, regulationID uint64) (entity.Regulation, error) {
+// 	regulation, err := u.regulationService.GetOne(ctx, regulationID)
+// 	if err != nil {
+// 		return entity.Regulation{}, err
+// 	}
+// 	chapters, err := u.chapterService.GetAllById(ctx, regulationID)
+// 	if err != nil {
+// 		return entity.Regulation{}, err
+// 	}
 
-	for _, chapter := range chapters {
-		paragraphs, err := u.paragraphService.GetAllById(ctx, chapter.ID)
-		if err != nil {
-			return entity.Regulation{}, err
-		}
-		chapter.Paragraphs = paragraphs
-	}
+// 	for _, chapter := range chapters {
+// 		paragraphs, err := u.paragraphService.GetAllById(ctx, chapter.ID)
+// 		if err != nil {
+// 			return entity.Regulation{}, err
+// 		}
+// 		chapter.Paragraphs = paragraphs
+// 	}
 
-	regulation.Chapters = chapters
+// 	regulation.Chapters = chapters
 
-	return regulation, nil
-}
+// 	return regulation, nil
+// }
 
-func (u regulationUsecase) GetDartFullRegulationByID(ctx context.Context, regulationID uint64) string {
-	regulation, err := u.regulationService.GetOne(ctx, regulationID)
-	if err != nil {
-		return ""
-	}
-	chapters, err := u.chapterService.GetAllById(ctx, regulationID)
-	if err != nil {
-		return ""
-	}
+// func (u regulationUsecase) GetDartFullRegulationByID(ctx context.Context, regulationID uint64) string {
+// 	regulation, err := u.regulationService.GetOne(ctx, regulationID)
+// 	if err != nil {
+// 		return ""
+// 	}
+// 	chapters, err := u.chapterService.GetAllById(ctx, regulationID)
+// 	if err != nil {
+// 		return ""
+// 	}
 
-	dartClass := `
-	import 'paragraph.dart';
-	import 'chapter.dart';
-	
-	class Regulation {
-		static const int id = %d;
-		static const String name = "%s";
-		static const String abbreviation = "%s";
-		static const List<Chapter> chapters = <Chapter>[
-			%s
-		];
-	}
-	`
+// 	dartClass := `
+// 	import 'paragraph.dart';
+// 	import 'chapter.dart';
 
-	chaptersDartString, _ := u.chaptersDart(ctx, chapters)
-	return fmt.Sprintf(dartClass, regulationID, regulation.Name, regulation.Abbreviation, chaptersDartString)
-}
+// 	class Regulation {
+// 		static const int id = %d;
+// 		static const String name = "%s";
+// 		static const String abbreviation = "%s";
+// 		static const List<Chapter> chapters = <Chapter>[
+// 			%s
+// 		];
+// 	}
+// 	`
 
-func (u regulationUsecase) chaptersDart(ctx context.Context, chapters []entity.Chapter) (dartChaptersString string, err error) {
-	dartChapter := `Chapter(id: %d, name: "%s", num: "%s", orderNum: %d , paragraphs: [
-		%s
-	]),`
-	for _, chapter := range chapters {
-		paragraphs, err := u.paragraphService.GetAllById(ctx, chapter.ID)
-		if err != nil {
-			return dartChapter, err
-		}
-		dartPar := paragraphsDart(ctx, paragraphs, u)
+// 	chaptersDartString, _ := u.chaptersDart(ctx, chapters)
+// 	return fmt.Sprintf(dartClass, regulationID, regulation.Name, regulation.Abbreviation, chaptersDartString)
+// }
 
-		num := ""
-		if len(chapter.Num) > 0 {
-			num = chapter.Num
-		}
-		name := strings.Replace(chapter.Name, "\n", "", -1)
-		temp := fmt.Sprintf(dartChapter, chapter.ID, name, num, chapter.OrderNum, dartPar)
-		dartChaptersString += temp
-	}
-	return dartChaptersString, nil
-}
+// func (u regulationUsecase) chaptersDart(ctx context.Context, chapters []entity.Chapter) (dartChaptersString string, err error) {
+// 	dartChapter := `Chapter(id: %d, name: "%s", num: "%s", orderNum: %d , paragraphs: [
+// 		%s
+// 	]),`
+// 	for _, chapter := range chapters {
+// 		paragraphs, err := u.paragraphService.GetAllById(ctx, chapter.ID)
+// 		if err != nil {
+// 			return dartChapter, err
+// 		}
+// 		dartPar := paragraphsDart(ctx, paragraphs, u)
 
-func speachText(contentSlice []string) string {
-	start := `[`
-	end := `]`
+// 		num := ""
+// 		if len(chapter.Num) > 0 {
+// 			num = chapter.Num
+// 		}
+// 		name := strings.Replace(chapter.Name, "\n", "", -1)
+// 		temp := fmt.Sprintf(dartChapter, chapter.ID, name, num, chapter.OrderNum, dartPar)
+// 		dartChaptersString += temp
+// 	}
+// 	return dartChaptersString, nil
+// }
 
-	var result string
+// func speachText(contentSlice []string) string {
+// 	start := `[`
+// 	end := `]`
 
-	for _, part := range contentSlice {
-		part = strings.ReplaceAll(part, "'", `"`)
-		str := fmt.Sprintf(`'%s',`, part)
-		result += str
-	}
-	result = result[:len(result)-1]
-	re := regexp.MustCompile(`\r?\n`)
-	result = re.ReplaceAllString(result, " ")
-	return start + result + end
-}
+// 	var result string
 
-func paragraphsDart(ctx context.Context, paragraphs []entity.Paragraph, u regulationUsecase) (dartParagraphsList string) {
-	for _, p := range paragraphs {
-		text := strings.Replace(p.Content, "\n", "", -1)
-		text = strings.ReplaceAll(text, `'`, `"`)
+// 	for _, part := range contentSlice {
+// 		part = strings.ReplaceAll(part, "'", `"`)
+// 		str := fmt.Sprintf(`'%s',`, part)
+// 		result += str
+// 	}
+// 	result = result[:len(result)-1]
+// 	re := regexp.MustCompile(`\r?\n`)
+// 	result = re.ReplaceAllString(result, " ")
+// 	return start + result + end
+// }
 
-		var speechTextSlice []string
-		if p.ID > 0 {
-			speechSlice, err := u.speechAdapter.GetAllById(ctx, p.ID)
-			if err != nil {
-				return ""
-			}
-			for _, t := range speechSlice {
-				speechTextSlice = append(speechTextSlice, t.Content)
-			}
-		} else {
-			speechTextSlice = append(speechTextSlice, p.Content)
-		}
+// func paragraphsDart(ctx context.Context, paragraphs []entity.Paragraph, u regulationUsecase) (dartParagraphsList string) {
+// 	for _, p := range paragraphs {
+// 		text := strings.Replace(p.Content, "\n", "", -1)
+// 		text = strings.ReplaceAll(text, `'`, `"`)
 
-		textToSpeech := speachText(speechTextSlice)
-		dartParagraphsList += fmt.Sprintf(`		Paragraph(id: %d, num: %d, isTable: %t,isNFT: %t, paragraphClass: "%s", content: '%s', chapterID: %d, textToSpeech: %s),
-		`, p.ID, p.Num, p.IsTable, p.IsNFT, p.Class, text, p.ChapterID, textToSpeech)
-	}
-	return dartParagraphsList
-}
+// 		var speechTextSlice []string
+// 		if p.ID > 0 {
+// 			speechSlice, err := u.speechService.GetAllById(ctx, p.ID)
+// 			if err != nil {
+// 				return ""
+// 			}
+// 			for _, t := range speechSlice {
+// 				speechTextSlice = append(speechTextSlice, t.Content)
+// 			}
+// 		} else {
+// 			speechTextSlice = append(speechTextSlice, p.Content)
+// 		}
 
-func (u regulationUsecase) linksDart(ctx context.Context, links []*entity.Link) (dartLinksList string) {
+// 		textToSpeech := speachText(speechTextSlice)
+// 		dartParagraphsList += fmt.Sprintf(`		Paragraph(id: %d, num: %d, isTable: %t,isNFT: %t, paragraphClass: "%s", content: '%s', chapterID: %d, textToSpeech: %s),
+// 		`, p.ID, p.Num, p.IsTable, p.IsNFT, p.Class, text, p.ChapterID, textToSpeech)
+// 	}
+// 	return dartParagraphsList
+// }
 
-	for _, l := range links {
-		num, err := u.chapterService.GetOrderNum(ctx, l.ChapterID)
-		if err != nil {
-			fmt.Println(err)
-		}
-		dartLinksList += fmt.Sprintf(`		Link(id: %d, chapterNum: %d, paragraphNum: %d, rid: %d),
-		`, l.ID, num, l.ParagraphNum, l.RID)
-	}
-	return dartLinksList
-}
+// func (u regulationUsecase) linksDart(ctx context.Context, links []*entity.Link) (dartLinksList string) {
 
-func (u regulationUsecase) AllLinksDart(ctx context.Context, regulationID uint64) string {
-	chapters, err := u.chapterService.GetAllById(ctx, regulationID)
-	if err != nil {
-		return ""
-	}
-	var links []*entity.Link
+// 	for _, l := range links {
+// 		num, err := u.chapterService.GetOrderNum(ctx, l.ChapterID)
+// 		if err != nil {
+// 			fmt.Println(err)
+// 		}
+// 		dartLinksList += fmt.Sprintf(`		Link(id: %d, chapterNum: %d, paragraphNum: %d, rid: %d),
+// 		`, l.ID, num, l.ParagraphNum, l.RID)
+// 	}
+// 	return dartLinksList
+// }
 
-	for _, chapter := range chapters {
-		l, _ := u.linkAdapter.GetAllByChapterID(ctx, chapter.ID)
-		links = append(links, l...)
-	}
+// func (u regulationUsecase) AllLinksDart(ctx context.Context, regulationID uint64) string {
+// 	chapters, err := u.chapterService.GetAllById(ctx, regulationID)
+// 	if err != nil {
+// 		return ""
+// 	}
+// 	var links []*entity.Link
 
-	for _, l := range links {
-		l.RID = regulationID
-	}
+// 	for _, chapter := range chapters {
+// 		l, _ := u.linkService.GetAllByChapterID(ctx, chapter.ID)
+// 		links = append(links, l...)
+// 	}
 
-	dartClass := `
-import 'link.dart';
-	
-class AllLinks {
-	static const List<Link> links = <Link>[
-		%s
-	];
-}
-	`
+// 	for _, l := range links {
+// 		l.RID = regulationID
+// 	}
 
-	linkssDartString := u.linksDart(ctx, links)
+// 	dartClass := `
+// import 'link.dart';
 
-	return fmt.Sprintf(dartClass, linkssDartString)
-}
+// class AllLinks {
+// 	static const List<Link> links = <Link>[
+// 		%s
+// 	];
+// }
+// 	`
 
-func (u regulationUsecase) GetDocumentRoot(ctx context.Context, stringID string) (entity.Regulation, []entity.Chapter) {
-	uint64ID, err := strconv.ParseUint(stringID, 10, 64)
-	if err != nil {
-		return entity.Regulation{}, nil
-	}
-	regulation, err := u.regulationService.GetOne(ctx, uint64ID)
-	if err != nil {
-		return entity.Regulation{}, nil
-	}
+// 	linkssDartString := u.linksDart(ctx, links)
 
-	regulation.Name = nonsense.Capitalize(regulation.Name)
-	chapters, err := u.chapterService.GetAllById(ctx, uint64ID)
-	if err != nil {
-		return entity.Regulation{}, nil
-	}
-	return regulation, chapters
-}
+// 	return fmt.Sprintf(dartClass, linkssDartString)
+// }
 
-func (u regulationUsecase) GetDocuments(ctx context.Context) []entity.Regulation {
-	regulations, err := u.regulationService.GetAll(ctx)
-	if err != nil {
-		return nil
-	}
+// func (u regulationUsecase) GetDocumentRoot(ctx context.Context, stringID string) (entity.Regulation, []entity.Chapter) {
+// 	uint64ID, err := strconv.ParseUint(stringID, 10, 64)
+// 	if err != nil {
+// 		return entity.Regulation{}, nil
+// 	}
+// 	regulation, err := u.regulationService.GetOne(ctx, uint64ID)
+// 	if err != nil {
+// 		return entity.Regulation{}, nil
+// 	}
 
-	return regulations
-}
+// 	regulation.Name = nonsense.Capitalize(regulation.Name)
+// 	chapters, err := u.chapterService.GetAllById(ctx, uint64ID)
+// 	if err != nil {
+// 		return entity.Regulation{}, nil
+// 	}
+// 	return regulation, chapters
+// }
+
+// func (u regulationUsecase) GetDocuments(ctx context.Context) []entity.Regulation {
+// 	regulations, err := u.regulationService.GetAll(ctx)
+// 	if err != nil {
+// 		return nil
+// 	}
+
+// 	return regulations
+// }
 
 func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint64) error {
 	chapters, err := u.chapterService.GetAllById(ctx, regulationID)
@@ -299,7 +296,7 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 					if rID == 0 {
 						fmt.Printf("ID: %d, %s, %d|\n", rID, ID, paragraph.ID)
 						absent := entity.Absent{Pseudo: ID, ParagraphID: paragraph.ID}
-						err := u.absentAdapter.Create(ctx, absent)
+						err := u.absentService.Create(ctx, absent)
 						if err != nil {
 							fmt.Println(err.Error())
 						}
@@ -310,7 +307,7 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 				IDs := strings.Split(href, "/")
 				if (len(IDs) < 3) || (len(IDs[0]) == 0) || (len(IDs[1]) == 0) || (len(IDs[2]) == 0) {
 					absent := entity.Absent{Pseudo: href, ParagraphID: paragraph.ID}
-					u.absentAdapter.Create(ctx, absent)
+					u.absentService.Create(ctx, absent)
 					continue
 				}
 				regID, err := u.regulationService.GetIDByPseudo(ctx, IDs[0])
@@ -319,7 +316,7 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 				}
 				if regID == 0 {
 					absent := entity.Absent{Pseudo: IDs[0], ParagraphID: paragraph.ID}
-					u.absentAdapter.Create(ctx, absent)
+					u.absentService.Create(ctx, absent)
 					continue
 				}
 				chID, err := u.chapterService.GetIDByPseudo(ctx, IDs[1])
@@ -351,7 +348,7 @@ func (u regulationUsecase) DeleteRegulation(ctx context.Context, regulationID ui
 	}
 
 	for _, chapter := range chapters {
-		err = u.linkAdapter.DeleteForChapter(ctx, chapter.ID)
+		err = u.linkService.DeleteForChapter(ctx, chapter.ID)
 		if err != nil {
 			return err
 		}
@@ -360,7 +357,7 @@ func (u regulationUsecase) DeleteRegulation(ctx context.Context, regulationID ui
 			return err
 		}
 		for _, paragraph := range paragraphs {
-			err = u.speechAdapter.DeleteForParagraph(ctx, paragraph.ID)
+			err = u.speechService.DeleteForParagraph(ctx, paragraph.ID)
 			if err != nil {
 				return err
 			}

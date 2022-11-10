@@ -3,6 +3,7 @@ package postgressql
 import (
 	"context"
 	"fmt"
+	"regulations_supreme_service/internal/domain/entity"
 	client "regulations_supreme_service/pkg/client/postgresql"
 )
 
@@ -15,9 +16,9 @@ func NewAbsentStorage(client client.PostgreSQLClient) *absentStorage {
 }
 
 // Create
-func (as *absentStorage) Create(ctx context.Context, pseudo string, paragraphId uint64) error {
+func (as *absentStorage) Create(ctx context.Context, absent entity.Absent) error {
 	sql := `INSERT INTO absent_reg ("pseudo", "paragraph_id") VALUES ($1,$2) `
-	if _, err := as.client.Exec(ctx, sql, pseudo, paragraphId); err != nil {
+	if _, err := as.client.Exec(ctx, sql, absent.Pseudo, absent.ParagraphID); err != nil {
 		return err
 	}
 	return nil
