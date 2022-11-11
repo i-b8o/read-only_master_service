@@ -35,12 +35,6 @@ func NewSupremeRegulationGRPCService(regulationUsecase RegulationUsecase, chapte
 	}
 }
 
-func (s *SupremeRegulationGRPCService) GenerateLinks(ctx context.Context, req *pb.GenerateLinksRequest) (*pb.GenerateLinksResponse, error) {
-	ID := req.GetID()
-	err := s.regulationUsecase.GenerateLinks(ctx, ID)
-	return &pb.GenerateLinksResponse{ID: ID}, err
-}
-
 func (s *SupremeRegulationGRPCService) CreateRegulation(ctx context.Context, req *pb.CreateRegulationRequest) (*pb.CreateRegulationResponse, error) {
 	// MAPPING
 	regulation := entity.Regulation{
@@ -98,4 +92,10 @@ func (s *SupremeRegulationGRPCService) CreateParagraphs(ctx context.Context, req
 		return &pb.CreateParagraphsResponse{Status: "not"}, err
 	}
 	return &pb.CreateParagraphsResponse{Status: "ok"}, nil
+}
+
+func (s *SupremeRegulationGRPCService) GenerateLinks(ctx context.Context, req *pb.GenerateLinksRequest) (*pb.GenerateLinksResponse, error) {
+	ID := req.GetID()
+	err := s.regulationUsecase.GenerateLinks(ctx, ID)
+	return &pb.GenerateLinksResponse{ID: ID}, err
 }
