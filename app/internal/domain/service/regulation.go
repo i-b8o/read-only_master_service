@@ -6,10 +6,10 @@ import (
 )
 
 type RegulationStorage interface {
-	GetOne(ctx context.Context, regulationID uint64) (entity.Regulation, error)
-	GetAll(ctx context.Context) ([]entity.Regulation, error)
+	// GetOne(ctx context.Context, regulationID uint64) (entity.Regulation, error)
+	// GetAll(ctx context.Context) ([]entity.Regulation, error)
 	Create(ctx context.Context, regulation entity.Regulation) (string, error)
-	DeleteRegulation(ctx context.Context, regulationID uint64) error
+	DeleteRegulation(ctx context.Context, regulationID uint64) (string, error)
 	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
 }
 
@@ -25,7 +25,7 @@ func (s *regulationService) Create(ctx context.Context, regulation entity.Regula
 	return s.storage.Create(ctx, regulation)
 }
 
-func (s *regulationService) DeleteRegulation(ctx context.Context, regulationID uint64) error {
+func (s *regulationService) DeleteRegulation(ctx context.Context, regulationID uint64) (string, error) {
 	return s.storage.DeleteRegulation(ctx, regulationID)
 }
 

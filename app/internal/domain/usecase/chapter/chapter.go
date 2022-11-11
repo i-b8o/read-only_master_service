@@ -8,7 +8,7 @@ import (
 )
 
 type ChapterService interface {
-	Create(ctx context.Context, chapter entity.Chapter) (string, error)
+	Create(ctx context.Context, chapter entity.Chapter) (uint64, error)
 	// GetOneById(ctx context.Context, chapterID uint64) (entity.Chapter, error)
 	// GetAllById(ctx context.Context, regulationID uint64) ([]entity.Chapter, error)
 }

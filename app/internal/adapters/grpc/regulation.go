@@ -15,25 +15,16 @@ func NewRegulationStorage(client wr_pb.WritableRegulationGRPCClient) *regulation
 	return &regulationStorage{client: client}
 }
 
-func (rs *regulationStorage) GetOne(ctx context.Context, regulationID uint64) (entity.Regulation, error) {
-
-}
-
-func (rs *regulationStorage) GetAll(ctx context.Context) ([]entity.Regulation, error) {
-
-}
-
-func (rs *regulationStorage) Create(ctx context.Context, regulation entity.Regulation) (string, error) {
+func (rs *regulationStorage) Create(ctx context.Context, regulation entity.Regulation) (uint64, error) {
 	// Mapping
 	req := &wr_pb.CreateRegulationRequest{Name: regulation.Name, Abbreviation: regulation.Abbreviation, Title: regulation.Title}
-	return := rs.client.CreateRegulation(ctx, req)
-	
+	resp, err := rs.client.CreateRegulation(ctx, req)
+	return resp.ID, err
 }
 
-func (rs *regulationStorage) DeleteRegulation(ctx context.Context, regulationID uint64) error {
+func (rs *regulationStorage) DeleteRegulation(ctx context.Context, regulationID uint64) (string, error) {
+	req := &wr_pb.DeleteRegulationRequest{ID: regulationID}
+	resp, err := rs.client.DeleteRegulation(ctx, req)
 
-}
-
-func (rs *regulationStorage) GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error) {
-
+	return resp.Status, err
 }

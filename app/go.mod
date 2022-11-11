@@ -6,7 +6,7 @@ require (
 	github.com/i-b8o/logging v0.0.0-20221105180025-715df517e91e
 	github.com/i-b8o/nonsense v0.0.0-20220923103144-3618623a71ba
 	github.com/i-b8o/pbs v0.0.0-20221030163856-b91cde618dd7
-	github.com/i-b8o/regulations_contracts v0.0.0-20221110114105-486ceb15d78b
+	github.com/i-b8o/regulations_contracts v0.0.0-20221111114003-066d11a20155
 	github.com/ilyakaznacheev/cleanenv v1.4.0
 	github.com/jackc/pgconn v1.13.0
 	github.com/jackc/pgx/v4 v4.17.2
