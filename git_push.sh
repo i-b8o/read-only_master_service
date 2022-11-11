@@ -1,6 +1,6 @@
 #!/bin/bash
-read -p "Commit description: " m
+echo "supreme push"
 git add . && \
 git add -u && \
-git commit -m "$m" && \
+git commit -m $1 && \
 git push origin master
