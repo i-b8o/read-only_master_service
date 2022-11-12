@@ -19,12 +19,14 @@ func (rs *regulationStorage) Create(ctx context.Context, regulation entity.Regul
 	// Mapping
 	req := &wr_pb.CreateRegulationRequest{Name: regulation.Name, Abbreviation: regulation.Abbreviation, Title: regulation.Title}
 	resp, err := rs.client.CreateRegulation(ctx, req)
+	if err != nil {
+		return 0, err
+	}
 	return resp.ID, err
 }
 
-func (rs *regulationStorage) DeleteRegulation(ctx context.Context, regulationID uint64) (string, error) {
+func (rs *regulationStorage) Delete(ctx context.Context, regulationID uint64) error {
 	req := &wr_pb.DeleteRegulationRequest{ID: regulationID}
-	resp, err := rs.client.DeleteRegulation(ctx, req)
-
-	return resp.Status, err
+	_, err := rs.client.DeleteRegulation(ctx, req)
+	return err
 }

@@ -6,11 +6,8 @@ import (
 )
 
 type ParagraphStorage interface {
-	GetAllById(ctx context.Context, chapterID uint64) ([]entity.Paragraph, error)
-	CreateAll(ctx context.Context, paragraphs []entity.Paragraph) error
-	UpdateOne(ctx context.Context, content string, paragraphID uint64) error
-	GetWithHrefs(ctx context.Context, chapterID uint64) ([]entity.Paragraph, error)
 	DeleteForChapter(ctx context.Context, chapterID uint64) error
+	CreateAll(ctx context.Context, paragraphs []entity.Paragraph) error
 }
 
 type paragraphService struct {
@@ -21,21 +18,16 @@ func NewParagraphService(storage ParagraphStorage) *paragraphService {
 	return &paragraphService{storage: storage}
 }
 
-func (s *paragraphService) GetAllById(ctx context.Context, chapterID uint64) ([]entity.Paragraph, error) {
-	return s.storage.GetAllById(ctx, chapterID)
+func (s *paragraphService) DeleteForRegulation(ctx context.Context, chaptersIDs []uint64) error {
+	for _, ID := range chaptersIDs {
+		err := s.storage.DeleteForChapter(ctx, ID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *paragraphService) CreateAll(ctx context.Context, paragraphs []entity.Paragraph) error {
 	return s.storage.CreateAll(ctx, paragraphs)
-}
-
-func (s *paragraphService) UpdateOne(ctx context.Context, content string, paragraphID uint64) error {
-	return s.storage.UpdateOne(ctx, content, paragraphID)
-}
-
-func (s *paragraphService) GetWithHrefs(ctx context.Context, chapterID uint64) ([]entity.Paragraph, error) {
-	return s.storage.GetWithHrefs(ctx, chapterID)
-}
-func (s *paragraphService) DeleteForChapter(ctx context.Context, chapterID uint64) error {
-	return s.storage.DeleteForChapter(ctx, chapterID)
 }

@@ -16,7 +16,7 @@ type ParagraphService interface {
 }
 
 type ChapterService interface {
-	GetOneById(ctx context.Context, chapterID uint64) (entity.Chapter, error)
+	GetRegulationIdByChapterId(ctx context.Context, ID uint64) (uint64, error)
 }
 
 type LinkService interface {
@@ -42,13 +42,13 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 	if len(paragraphs) == 0 {
 		return nil
 	}
-	ch, err := u.chapterService.GetOneById(ctx, paragraphs[0].ChapterID)
+	rId, err := u.chapterService.GetRegulationIdByChapterId(ctx, paragraphs[0].ChapterID)
 	if err != nil {
 		return err
 	}
 	for _, p := range paragraphs {
 		if p.ID > 0 {
-			u.linkService.Create(ctx, entity.Link{ID: p.ID, ParagraphNum: p.Num, ChapterID: p.ChapterID, RID: ch.RegulationID})
+			u.linkService.Create(ctx, entity.Link{ID: p.ID, ParagraphNum: p.Num, ChapterID: p.ChapterID, RID: rId})
 			speechTextSlice, err := createSpeechText(p.Content)
 			if err != nil {
 				return err
@@ -74,7 +74,7 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 				if err != nil {
 					return err
 				}
-				u.linkService.Create(ctx, entity.Link{ID: subIndexUint64, ParagraphNum: p.Num, ChapterID: p.ChapterID, RID: ch.RegulationID})
+				u.linkService.Create(ctx, entity.Link{ID: subIndexUint64, ParagraphNum: p.Num, ChapterID: p.ChapterID, RID: rId})
 			}
 		}
 		content := strings.TrimSpace(p.Content)

@@ -8,11 +8,12 @@ import (
 	"time"
 
 	postgressql "regulations_supreme_service/internal/adapters/db/postgresql"
+	grpc_adapter "regulations_supreme_service/internal/adapters/grpc"
 	"regulations_supreme_service/internal/config"
 	grpc_controller "regulations_supreme_service/internal/controller/grpc"
 	"regulations_supreme_service/internal/domain/service"
-	chapter_usecase "regulations_supreme_service/internal/domain/usecase/chapter"
-	paragraph_usecase "regulations_supreme_service/internal/domain/usecase/paragraph"
+	usecase_chapter "regulations_supreme_service/internal/domain/usecase/chapter"
+	usecase_paragraph "regulations_supreme_service/internal/domain/usecase/paragraph"
 	regulation_usecase "regulations_supreme_service/internal/domain/usecase/regulation"
 
 	pb "github.com/i-b8o/regulations_contracts/pb/supreme/v1"
@@ -55,26 +56,28 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	}
 	grpcClient := wr_pb.NewWritableRegulationGRPCClient(conn)
 
-	linkAdapter := postgressql.NewLinkStorage(pgClient)
-	// chapterAdapter := postgressql.NewChapterStorage(pgClient)
-	// paragraphAdapter := postgressql.NewParagraphStorage(pgClient)
-	regulationAdapter := postgressql.NewRegulationStorage(grpcClient)
-	speechAdapter := postgressql.NewSpeechStorage(pgClient)
-	// searchAdapter := postgressql.NewSearchStorage(pgClient)
 	absentAdapter := postgressql.NewAbsentStorage(pgClient)
+	linkAdapter := postgressql.NewLinkStorage(pgClient)
+	speechAdapter := postgressql.NewSpeechStorage(pgClient)
 
-	regService := service.NewRegulationService(regulationAdapter)
-	linkService := service.NewLinkService(linkAdapter)
+	regulationAdapter := grpc_adapter.NewRegulationStorage(grpcClient)
+	chapterAdapter := grpc_adapter.NewChapterStorage(grpcClient)
+	pseudoRegulationAdapter := postgressql.NewPseudoRegulationStorage(pgClient)
+	pseudoChapterAdapter := postgressql.NewPseudoChapterStorage(pgClient)
+	paragraphAdapter := grpc_adapter.NewParagraphStorage(grpcClient)
+
+	regulationService := service.NewRegulationService(regulationAdapter)
 	chapterService := service.NewChapterService(chapterAdapter)
+	absentService := service.NewAbsentService(absentAdapter)
+	pseudoRegulationService := service.NewPseudoRegulationService(pseudoRegulationAdapter)
+	pseudoChapterService := service.NewPseudoChapterService(pseudoChapterAdapter)
 	paragraphService := service.NewParagraphService(paragraphAdapter)
+	linkService := service.NewLinkService(linkAdapter)
 	speechService := service.NewSpeechService(speechAdapter)
 
-	absentService := service.NewAbsentService(absentAdapter)
-
-	paragraphUsecase := paragraph_usecase.NewParagraphUsecase(paragraphService, chapterService, linkService, speechService)
-	chapterUsecase := chapter_usecase.NewChapterUsecase(chapterService, paragraphService, linkService, regService)
-	regUsecase := regulation_usecase.NewRegulationUsecase(regService, chapterService, paragraphService, linkService, speechService, absentService, logger)
-
+	regulationUsecase := regulation_usecase.NewRegulationUsecase(regulationService, chapterService, paragraphService, absentService, pseudoRegulationService, logger)
+	chapterUsecase := usecase_chapter.NewChapterUsecase(chapterService, linkService, pseudoChapterService, logger)
+	paragraphUsecase := usecase_paragraph.NewParagraphUsecase(paragraphService, chapterService, linkService, speechService)
 	// read ca's cert, verify to client's certificate
 	// homeDir, err := os.UserHomeDir()
 	// if err != nil {
@@ -109,7 +112,7 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 
 	// grpcServer := grpc.NewServer(grpc.Creds(tlsCredentials))
 	grpcServer := grpc.NewServer()
-	server := grpc_controller.NewSupremeRegulationGRPCService(regUsecase, chapterUsecase, paragraphUsecase)
+	server := grpc_controller.NewSupremeRegulationGRPCService(regulationUsecase, chapterUsecase, paragraphUsecase)
 	pb.RegisterSupremeRegulationGRPCServer(grpcServer, server)
 
 	return App{cfg: config, grpcServer: grpcServer, logger: logger}, nil

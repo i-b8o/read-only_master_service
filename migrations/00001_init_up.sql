@@ -6,12 +6,12 @@ DROP TABLE IF EXISTS links;
 DROP TABLE IF EXISTS speech;
 
 
-CREATE TABLE pseudo_regulations (
+CREATE TABLE pseudo_regulation (
     r_id integer,
     pseudo TEXT NOT NULL CHECK (pseudo != '')
 );
 
-CREATE TABLE pseudo_chapters (
+CREATE TABLE pseudo_chapter (
     c_id integer,
     pseudo TEXT NOT NULL CHECK (pseudo != '')
 );
@@ -23,11 +23,11 @@ CREATE TABLE absent_reg (
     paragraph_id integer  
 );
 
-CREATE TABLE links (
+CREATE TABLE link (
     id INT NOT NULL UNIQUE,
     paragraph_num INT NOT NULL CHECK (paragraph_num >= 0),
-    c_id integer REFERENCES chapters,
-    r_id integer REFERENCES regulations
+    c_id integer,
+    r_id integer
 );
 
 CREATE TABLE speech (
