@@ -47,6 +47,12 @@ github.com/i-b8o/nonsense v0.0.0-20220923103144-3618623a71ba h1:aPOsAE2mvEdAMxvw
 github.com/i-b8o/nonsense v0.0.0-20220923103144-3618623a71ba/go.mod h1:IFuDNwZdIfZLDsIOHKLUnAnRer0e+GMfD2whNLhgwRA=
 github.com/i-b8o/regulations_contracts v0.0.0-20221111114003-066d11a20155 h1:ubfcSqe06eQT0px/pN6DZ8+ytLhDFrm5BhMogxymD8A=
 github.com/i-b8o/regulations_contracts v0.0.0-20221111114003-066d11a20155/go.mod h1:BJfjDZHBG93j5H2JEnV2qUYJhUQT41kBKGNICqQcT/4=
+github.com/i-b8o/regulations_contracts v0.0.0-20221112091710-88ceecd88a94 h1:Z/0oAZMKGLyAz/EyWBpNnnQGME30oMypVa5i4bURUrI=
+github.com/i-b8o/regulations_contracts v0.0.0-20221112091710-88ceecd88a94/go.mod h1:BJfjDZHBG93j5H2JEnV2qUYJhUQT41kBKGNICqQcT/4=
+github.com/i-b8o/regulations_contracts v0.0.0-20221112092214-8e2a9e9aaeb4 h1:/+bqBm8p+sHJMd+bsDnOi81K0aNOo/1xkqvXfkg/Kq4=
+github.com/i-b8o/regulations_contracts v0.0.0-20221112092214-8e2a9e9aaeb4/go.mod h1:BJfjDZHBG93j5H2JEnV2qUYJhUQT41kBKGNICqQcT/4=
+github.com/i-b8o/regulations_contracts v0.0.0-20221112092849-3496b3f59eb3 h1:v5gd6vzguW1YxSsSHqrJ3N9AYjPvAmQpr+FC1Y1cNWI=
+github.com/i-b8o/regulations_contracts v0.0.0-20221112092849-3496b3f59eb3/go.mod h1:BJfjDZHBG93j5H2JEnV2qUYJhUQT41kBKGNICqQcT/4=
 github.com/ilyakaznacheev/cleanenv v1.4.0 h1:Gvwxt6wAPUo9OOxyp5Xz9eqhLsAey4AtbCF5zevDnvs=
 github.com/ilyakaznacheev/cleanenv v1.4.0/go.mod h1:i0owW+HDxeGKE0/JPREJOdSCPIyOnmh6C0xhWAkF/xA=
 github.com/jackc/chunkreader v1.0.0/go.mod h1:RT6O25fNZIuasFJRyZ4R/Y2BbhasbmZXF9QQ7T3kePo=

@@ -2,7 +2,7 @@ package entity
 
 type Paragraph struct {
 	ID        uint64 `json:"id"`
-	Num       uint64 `json:"num"`
+	Num       uint32 `json:"num"`
 	HasLinks  bool   `json:"has_links"`
 	IsTable   bool   `json:"is_table"`
 	IsNFT     bool   `json:"is_nft"`
