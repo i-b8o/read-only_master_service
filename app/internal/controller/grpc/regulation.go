@@ -10,6 +10,7 @@ import (
 type RegulationUsecase interface {
 	CreateRegulation(ctx context.Context, regulation entity.Regulation) string
 	GenerateLinks(ctx context.Context, regulationID uint64) error
+	DeleteRegulation(ctx context.Context, regulationID uint64) error
 }
 
 type ChapterUsecase interface {
