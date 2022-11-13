@@ -2,6 +2,7 @@ package postgressql
 
 import (
 	"context"
+	"fmt"
 	"regulations_supreme_service/internal/domain/entity"
 	client "regulations_supreme_service/pkg/client/postgresql"
 )
@@ -26,4 +27,25 @@ func (prs *pseudoRegulationStorage) DeleteRelationship(ctx context.Context, regu
 	sql := `delete from pseudo_regulations where r_id=$1`
 	_, err := prs.client.Exec(ctx, sql, regulationID)
 	return err
+}
+
+func (prs *pseudoRegulationStorage) GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error) {
+	sql := fmt.Sprintf(`SELECT r_id FROM "pseudo_regulation" WHERE pseudo = '%s'`, pseudoId)
+	rows, err := prs.client.Query(ctx, sql)
+	if err != nil {
+		return 0, err
+	}
+
+	defer rows.Close()
+
+	regulationID := uint64(0)
+	for rows.Next() {
+		if err = rows.Scan(
+			&regulationID,
+		); err != nil {
+			return 0, err
+		}
+
+	}
+	return regulationID, err
 }

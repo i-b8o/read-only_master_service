@@ -75,7 +75,7 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	linkService := service.NewLinkService(linkAdapter)
 	speechService := service.NewSpeechService(speechAdapter)
 
-	regulationUsecase := regulation_usecase.NewRegulationUsecase(regulationService, chapterService, paragraphService, absentService, pseudoRegulationService, logger)
+	regulationUsecase := regulation_usecase.NewRegulationUsecase(regulationService, chapterService, paragraphService, absentService, pseudoRegulationService, pseudoChapterAdapter, logger)
 	chapterUsecase := usecase_chapter.NewChapterUsecase(chapterService, linkService, pseudoChapterService, logger)
 	paragraphUsecase := usecase_paragraph.NewParagraphUsecase(paragraphService, chapterService, linkService, speechService)
 	// read ca's cert, verify to client's certificate

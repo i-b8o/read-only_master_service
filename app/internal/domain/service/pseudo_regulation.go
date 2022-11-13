@@ -8,6 +8,7 @@ import (
 type PseudoRegulationStorage interface {
 	CreateRelationship(ctx context.Context, pseudoRegulation entity.PseudoRegulation) error
 	DeleteRelationship(ctx context.Context, regulationID uint64) error
+	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
 }
 
 type pseudoRegulationService struct {
@@ -24,4 +25,8 @@ func (prs pseudoRegulationService) CreateRelationship(ctx context.Context, pseud
 
 func (prs pseudoRegulationService) DeleteRelationship(ctx context.Context, regulationID uint64) error {
 	return prs.storage.DeleteRelationship(ctx, regulationID)
+}
+
+func (prs pseudoRegulationService) GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error) {
+	return prs.storage.GetIDByPseudo(ctx, pseudoId)
 }

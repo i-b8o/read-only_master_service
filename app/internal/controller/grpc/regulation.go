@@ -16,7 +16,7 @@ type RegulationUsecase interface {
 }
 
 type ChapterUsecase interface {
-	CreateChapter(ctx context.Context, chapter entity.Chapter) string
+	CreateChapter(ctx context.Context, chapter entity.Chapter) (uint64, error)
 }
 
 type ParagraphUsecase interface {
@@ -46,7 +46,10 @@ func (s *SupremeRegulationGRPCService) CreateRegulation(ctx context.Context, req
 
 func (s *SupremeRegulationGRPCService) CreateChapter(ctx context.Context, req *pb.CreateChapterRequest) (*pb.CreateChapterResponse, error) {
 	chapter := controller_dto.ChapterFromCreateChapterRequest(req)
-	id := s.chapterUsecase.CreateChapter(ctx, chapter)
+	id, err := s.chapterUsecase.CreateChapter(ctx, chapter)
+	if err != nil {
+		return nil, err
+	}
 	return &pb.CreateChapterResponse{ID: id}, nil
 }
 

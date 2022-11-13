@@ -8,6 +8,7 @@ import (
 type PseudoChapterStorage interface {
 	CreateRelationship(ctx context.Context, pseudoChapter entity.PseudoChapter) error
 	DeleteRelationship(ctx context.Context, chapterID uint64) error
+	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
 }
 
 type pseudoChapterService struct {
@@ -24,4 +25,8 @@ func (pcs pseudoChapterService) CreateRelationship(ctx context.Context, pseudoCh
 
 func (pcs pseudoChapterService) DeleteRelationship(ctx context.Context, chapterID uint64) error {
 	return pcs.storage.DeleteRelationship(ctx, chapterID)
+}
+
+func (pcs pseudoChapterService) GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error) {
+	return pcs.storage.GetIDByPseudo(ctx, pseudoId)
 }
