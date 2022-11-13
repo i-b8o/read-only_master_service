@@ -2,13 +2,11 @@ package usecase_paragraph
 
 import (
 	"context"
-	"fmt"
 	"regexp"
 	"regulations_supreme_service/internal/domain/entity"
+	speech "regulations_supreme_service/pkg/speech"
 	"strconv"
 	"strings"
-
-	"github.com/i-b8o/nonsense"
 )
 
 type ParagraphService interface {
@@ -42,14 +40,17 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 	if len(paragraphs) == 0 {
 		return nil
 	}
+	// the regulation id will be used for a link creation
 	rId, err := u.chapterService.GetRegulationIdByChapterId(ctx, paragraphs[0].ChapterID)
 	if err != nil {
 		return err
 	}
+	// create links and speechs for paragraphs
 	for _, p := range paragraphs {
-		if p.ID > 0 {
+		if p.ID > 0 { // sometimes any paragraph can be without an id and no one will link to it
 			u.linkService.Create(ctx, entity.Link{ID: p.ID, ParagraphNum: p.Num, ChapterID: p.ChapterID, RID: rId})
-			speechTextSlice, err := createSpeechText(p.Content)
+
+			speechTextSlice, err := speech.CreateSpeechText(p.Content)
 			if err != nil {
 				return err
 			}
@@ -62,13 +63,14 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 			}
 		}
 
-		// When a paragraph has IDs inside
+		// when the paragraph has additional IDs inside itself we need to create additional links for it
 		hasIDsInside := strings.Contains(p.Content, "<a id=")
 		if hasIDsInside {
 			re := regexp.MustCompile(`<a id='(.*?)'`)
 			matches := re.FindAllString(p.Content, -1)
 			for _, match := range matches {
-				re := regexp.MustCompile(`[-]?\d[\d,]*[\.]?[\d{2}]*`)
+				// convert the id number of the ID to the uint64
+				re := regexp.MustCompile(`[\d]+`)
 				subIndexStr := re.FindString(match)
 				subIndexUint64, err := strconv.ParseUint(subIndexStr, 10, 64)
 				if err != nil {
@@ -77,6 +79,7 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 				u.linkService.Create(ctx, entity.Link{ID: subIndexUint64, ParagraphNum: p.Num, ChapterID: p.ChapterID, RID: rId})
 			}
 		}
+		// drop unnecessary spaces from the paragraph content
 		content := strings.TrimSpace(p.Content)
 		re := regexp.MustCompile(`\r?\n`)
 		clearContent := re.ReplaceAllString(content, " ")
@@ -89,58 +92,4 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 		return err
 	}
 	return err
-}
-
-func dropHtml(s string) string {
-	const regex = `<.*?>`
-	r := regexp.MustCompile(regex)
-	return r.ReplaceAllString(s, "")
-}
-
-func replaceRomanWithArabicString(text string) (result string) {
-	words := strings.Split(text, " ")
-	for i, word := range words {
-		space := ""
-		if i > 0 {
-			space = " "
-		}
-		if nonsense.IsRoman(word) {
-			arabic, _ := nonsense.ToIndoArabic(word)
-			result += fmt.Sprintf("%s%d", space, arabic)
-			continue
-		}
-		result += " " + word
-	}
-
-	return result
-}
-
-func replaceRomanWithArabic(text []string) []string {
-	var result []string
-	for _, str := range text {
-		result = append(result, replaceRomanWithArabicString(str))
-	}
-	return result
-}
-
-func createSpeechText(text string) (speechText []string, err error) {
-	text = dropHtml(text)
-	if len([]rune(text)) <= 250 {
-		speechText = append(speechText, replaceRomanWithArabic([]string{text})...)
-		return speechText, nil
-	}
-
-	sentences := strings.Split(text, ". ")
-	for _, sentence := range sentences {
-		words := strings.Split(sentence, " ")
-		if len(words) <= 40 {
-			speechText = append(speechText, replaceRomanWithArabic([]string{sentence})...)
-			// fmt.Println("here " + speechText)
-			continue
-		}
-		parts := strings.Split(sentence, ",")
-		speechText = append(speechText, replaceRomanWithArabic(parts)...)
-	}
-
-	return speechText, nil
 }

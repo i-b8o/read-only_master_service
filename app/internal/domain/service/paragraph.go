@@ -8,6 +8,7 @@ import (
 type ParagraphStorage interface {
 	DeleteForChapter(ctx context.Context, chapterID uint64) error
 	CreateAll(ctx context.Context, paragraphs []entity.Paragraph) error
+	GetParagraphsWithHrefs(ctx context.Context, chapterId uint64) ([]entity.Paragraph, error)
 }
 
 type paragraphService struct {
@@ -30,4 +31,8 @@ func (s *paragraphService) DeleteForRegulation(ctx context.Context, chaptersIDs 
 
 func (s *paragraphService) CreateAll(ctx context.Context, paragraphs []entity.Paragraph) error {
 	return s.storage.CreateAll(ctx, paragraphs)
+}
+
+func (s *paragraphService) GetParagraphsWithHrefs(ctx context.Context, chapterId uint64) ([]entity.Paragraph, error) {
+	return s.storage.GetParagraphsWithHrefs(ctx, chapterId)
 }

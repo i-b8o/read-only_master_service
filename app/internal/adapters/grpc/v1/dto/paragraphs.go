@@ -15,3 +15,11 @@ func CreateAllParagraphsRequestFromParagraphs(paragraphs []entity.Paragraph) (re
 	req.Paragraphs = wrParagraphs
 	return req
 }
+
+func ParagraphsFromGetParagraphsWithHrefsResponse(resp *wr_pb.GetParagraphsWithHrefsResponse) (paragraphs []entity.Paragraph) {
+	for _, writableParagraph := range resp.Paragraphs {
+		paragraph := entity.Paragraph{ID: writableParagraph.ID, Num: writableParagraph.Num, HasLinks: writableParagraph.HasLinks, IsTable: writableParagraph.IsTable, IsNFT: writableParagraph.IsNFT, Class: writableParagraph.Class, Content: writableParagraph.Content, ChapterID: writableParagraph.ChapterID}
+		paragraphs = append(paragraphs, paragraph)
+	}
+	return paragraphs
+}

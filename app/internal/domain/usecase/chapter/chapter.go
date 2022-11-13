@@ -40,8 +40,7 @@ func (u chapterUsecase) CreateChapter(ctx context.Context, chapter entity.Chapte
 	}
 
 	// create a link for the chapter
-	// sometimes any chapter can be without an id and no one will link to it
-	if chapter.ID > 0 {
+	if chapter.ID > 0 { // sometimes any chapter can be without an id and no one will link to it
 		err = u.linkService.CreateForChapter(ctx, entity.Link{ID: chapter.ID, ParagraphNum: 0, ChapterID: ID, RID: chapter.RegulationID})
 		if err != nil {
 			u.logging.Error(err)
@@ -49,7 +48,6 @@ func (u chapterUsecase) CreateChapter(ctx context.Context, chapter entity.Chapte
 		}
 	}
 
-	// create an id-pseudoId relationship
 	// create an id-pseudoId relationship
 	err = u.pseudoChapter.CreateRelationship(ctx, entity.PseudoChapter{ID: ID, PseudoId: chapter.Pseudo})
 	if err != nil {

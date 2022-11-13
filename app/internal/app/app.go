@@ -8,7 +8,7 @@ import (
 	"time"
 
 	postgressql "regulations_supreme_service/internal/adapters/db/postgresql"
-	grpc_adapter "regulations_supreme_service/internal/adapters/grpc"
+	grpc_adapter "regulations_supreme_service/internal/adapters/grpc/v1"
 	"regulations_supreme_service/internal/config"
 	grpc_controller "regulations_supreme_service/internal/controller/grpc"
 	"regulations_supreme_service/internal/domain/service"
