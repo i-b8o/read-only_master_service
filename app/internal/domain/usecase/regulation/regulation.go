@@ -140,7 +140,7 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 					fmt.Printf("This: %s", href)
 					p := strings.Split(href, "/document/cons_doc_LAW_")[1]
 					ID := strings.Split(p, "/")[0]
-					rID, err := u.regulationService.GetIDByPseudo(ctx, ID)
+					rID, err := u.pseudoRegulationService.GetIDByPseudo(ctx, ID)
 					if err != nil {
 						fmt.Printf("href = %s,ID: %s, error: %s", href, ID, err.Error())
 					}
