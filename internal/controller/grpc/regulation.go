@@ -2,9 +2,9 @@ package grpc_controller
 
 import (
 	"context"
-	"regulations_supreme_service/internal/domain/entity"
+	"read-only_master_service/internal/domain/entity"
 
-	controller_dto "regulations_supreme_service/internal/controller/grpc/dto"
+	controller_dto "read-only_master_service/internal/controller/grpc/dto"
 
 	pb "github.com/i-b8o/regulations_contracts/pb/supreme/v1"
 )

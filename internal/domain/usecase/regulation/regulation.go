@@ -3,8 +3,8 @@ package usecase_regulation
 import (
 	"context"
 	"fmt"
+	"read-only_master_service/internal/domain/entity"
 	"regexp"
-	"regulations_supreme_service/internal/domain/entity"
 	"strings"
 
 	"github.com/i-b8o/logging"

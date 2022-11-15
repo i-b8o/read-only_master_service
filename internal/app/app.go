@@ -7,21 +7,21 @@ import (
 
 	"time"
 
-	postgressql "regulations_supreme_service/internal/adapters/db/postgresql"
-	grpc_adapter "regulations_supreme_service/internal/adapters/grpc/v1"
-	"regulations_supreme_service/internal/config"
-	grpc_controller "regulations_supreme_service/internal/controller/grpc"
-	"regulations_supreme_service/internal/domain/service"
-	usecase_chapter "regulations_supreme_service/internal/domain/usecase/chapter"
-	usecase_paragraph "regulations_supreme_service/internal/domain/usecase/paragraph"
-	regulation_usecase "regulations_supreme_service/internal/domain/usecase/regulation"
+	postgressql "read-only_master_service/internal/adapters/db/postgresql"
+	grpc_adapter "read-only_master_service/internal/adapters/grpc/v1"
+	"read-only_master_service/internal/config"
+	grpc_controller "read-only_master_service/internal/controller/grpc"
+	"read-only_master_service/internal/domain/service"
+	usecase_chapter "read-only_master_service/internal/domain/usecase/chapter"
+	usecase_paragraph "read-only_master_service/internal/domain/usecase/paragraph"
+	regulation_usecase "read-only_master_service/internal/domain/usecase/regulation"
 
 	pb "github.com/i-b8o/regulations_contracts/pb/supreme/v1"
 	wr_pb "github.com/i-b8o/regulations_contracts/pb/writable/v1"
 
 	"golang.org/x/sync/errgroup"
 
-	"regulations_supreme_service/pkg/client/postgresql"
+	"read-only_master_service/pkg/client/postgresql"
 
 	"github.com/i-b8o/logging"
 	"google.golang.org/grpc"

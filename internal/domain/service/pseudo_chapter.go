@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"regulations_supreme_service/internal/domain/entity"
+	"read-only_master_service/internal/domain/entity"
 )
 
 type PseudoChapterStorage interface {

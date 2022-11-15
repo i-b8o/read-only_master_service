@@ -3,7 +3,7 @@ package usecase_link
 import (
 	"context"
 	"fmt"
-	"regulations_supreme_service/internal/domain/entity"
+	"read-only_master_service/internal/domain/entity"
 
 	"github.com/i-b8o/logging"
 )

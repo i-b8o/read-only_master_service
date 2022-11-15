@@ -2,7 +2,7 @@ package usecase_chapter
 
 import (
 	"context"
-	"regulations_supreme_service/internal/domain/entity"
+	"read-only_master_service/internal/domain/entity"
 
 	"github.com/i-b8o/logging"
 )

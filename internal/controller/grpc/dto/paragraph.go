@@ -1,7 +1,7 @@
 package controller_dto
 
 import (
-	"regulations_supreme_service/internal/domain/entity"
+	"read-only_master_service/internal/domain/entity"
 
 	pb "github.com/i-b8o/regulations_contracts/pb/supreme/v1"
 )

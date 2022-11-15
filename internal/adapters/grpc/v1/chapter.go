@@ -2,8 +2,8 @@ package grpc_adapter
 
 import (
 	"context"
-	"regulations_supreme_service/internal/adapters/grpc/v1/dto"
-	"regulations_supreme_service/internal/domain/entity"
+	"read-only_master_service/internal/adapters/grpc/v1/dto"
+	"read-only_master_service/internal/domain/entity"
 
 	wr_pb "github.com/i-b8o/regulations_contracts/pb/writable/v1"
 )

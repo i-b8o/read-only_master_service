@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"log"
-	"regulations_supreme_service/internal/app"
-	"regulations_supreme_service/internal/config"
+	"read-only_master_service/internal/app"
+	"read-only_master_service/internal/config"
 )
 
 func main() {

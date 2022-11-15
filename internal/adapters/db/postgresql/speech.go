@@ -2,8 +2,8 @@ package postgressql
 
 import (
 	"context"
-	"regulations_supreme_service/internal/domain/entity"
-	client "regulations_supreme_service/pkg/client/postgresql"
+	"read-only_master_service/internal/domain/entity"
+	client "read-only_master_service/pkg/client/postgresql"
 	"strconv"
 )
 

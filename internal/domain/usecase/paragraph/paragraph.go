@@ -2,9 +2,9 @@ package usecase_paragraph
 
 import (
 	"context"
+	"read-only_master_service/internal/domain/entity"
+	speech "read-only_master_service/pkg/speech"
 	"regexp"
-	"regulations_supreme_service/internal/domain/entity"
-	speech "regulations_supreme_service/pkg/speech"
 	"strconv"
 	"strings"
 )
