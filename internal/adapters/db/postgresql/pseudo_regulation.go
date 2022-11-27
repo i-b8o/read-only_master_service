@@ -24,7 +24,7 @@ func (prs *pseudoRegulationStorage) CreateRelationship(ctx context.Context, pseu
 }
 
 func (prs *pseudoRegulationStorage) DeleteRelationship(ctx context.Context, regulationID uint64) error {
-	sql := `delete from pseudo_regulations where r_id=$1`
+	sql := `delete from pseudo_regulation where r_id=$1`
 	_, err := prs.client.Exec(ctx, sql, regulationID)
 	return err
 }

@@ -28,7 +28,7 @@ type chapterUsecase struct {
 }
 
 func NewChapterUsecase(chapterService ChapterService, linkService LinkService, pseudoChapter PseudoChapter, logging logging.Logger) *chapterUsecase {
-	return &chapterUsecase{chapterService: chapterService, pseudoChapter: pseudoChapter, linkService: linkService}
+	return &chapterUsecase{chapterService: chapterService, pseudoChapter: pseudoChapter, linkService: linkService, logging: logging}
 }
 
 func (u chapterUsecase) CreateChapter(ctx context.Context, chapter entity.Chapter) (uint64, error) {

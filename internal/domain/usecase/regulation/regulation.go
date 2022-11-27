@@ -16,7 +16,6 @@ type RegulationService interface {
 }
 
 type ChapterService interface {
-	DeleteAll(ctx context.Context, ID uint64) error
 	GetAllIds(ctx context.Context, ID uint64) ([]uint64, error)
 }
 type ParagraphService interface {
@@ -39,6 +38,7 @@ type PseudoRegulationService interface {
 type PseudoChapterService interface {
 	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
 }
+
 type regulationUsecase struct {
 	regulationService       RegulationService
 	chapterService          ChapterService
@@ -85,25 +85,6 @@ func (u regulationUsecase) DeleteRegulation(ctx context.Context, ID uint64) erro
 		u.logging.Error(err)
 		return err
 	}
-
-	// delete all paragraphs for the regulation
-	IDs, err := u.chapterService.GetAllIds(ctx, ID)
-	if err != nil {
-		u.logging.Error(err)
-		return err
-	}
-	err = u.paragraphService.DeleteForRegulation(ctx, IDs)
-	if err != nil {
-		u.logging.Error(err)
-		return err
-	}
-	// delete all chapters for the regulation
-	err = u.chapterService.DeleteAll(ctx, ID)
-	if err != nil {
-		u.logging.Error(err)
-		return err
-	}
-
 	// delete the id-pseudoId relationship
 	err = u.pseudoRegulationService.DeleteRelationship(ctx, ID)
 	if err != nil {
@@ -114,10 +95,10 @@ func (u regulationUsecase) DeleteRegulation(ctx context.Context, ID uint64) erro
 }
 
 func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint64) error {
-
-	// for every chapter in the regulation
+	// get IDs for every chapter in the regulation
 	chIDs, err := u.chapterService.GetAllIds(ctx, regulationID)
 	if err != nil {
+		u.logging.Error(err)
 		return err
 	}
 
@@ -130,71 +111,75 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 		}
 
 		for _, paragraph := range paragraphs {
+
+			// get links
 			content := paragraph.Content
 			re := regexp.MustCompile("<a href='.+'>")
 			links := re.FindAllString(content, -1)
 
 			for _, aLink := range links {
+
 				hrefRaw := strings.Split(aLink, "<a href='")[1]
 				href := strings.Split(hrefRaw, "'>")[0]
-				// link for a entire document
-				matched, err := regexp.MatchString(`^\/document\/cons_doc_LAW_\d+\/$`, href)
-				if err != nil {
+				// get if exist IDs for reggulation, chapter and paragrap
+				rID, chID, pID := getIDs(href)
+
+				// something wrong with the link - absent
+				if rID == "" {
+
+					absent := entity.Absent{Pseudo: href, ParagraphID: paragraph.ID}
+					u.absentService.Create(ctx, absent)
 					u.logging.Error(err)
+					continue
 				}
-				if matched {
-					// fetch only doc ID (pseudo)
-					p := strings.Split(href, "/document/cons_doc_LAW_")[1]
-					ID := strings.Split(p, "/")[0]
-					// get relative ID
-					rID, err := u.pseudoRegulationService.GetIDByPseudo(ctx, ID)
+				// link for an entire document.
+				if chID == "" {
+
+					// get relative regulation ID
+					regulationID, err := u.pseudoRegulationService.GetIDByPseudo(ctx, rID)
 					if err != nil {
-						fmt.Printf("href = %s,ID: %s, error: %s", href, ID, err.Error())
+						u.logging.Error(err)
 					}
-					// if id was not found - absent
-					if rID == 0 {
-						absent := entity.Absent{Pseudo: ID, ParagraphID: paragraph.ID}
+					if regulationID == 0 {
+						absent := entity.Absent{Pseudo: rID, ParagraphID: paragraph.ID}
 						err := u.absentService.Create(ctx, absent)
 						if err != nil {
-							fmt.Println(err.Error())
+							u.logging.Error(err)
 						}
 						continue
 					}
+					post := fmt.Sprintf("%d'>", regulationID)
+					content = strings.Replace(content, aLink, "<a href='"+post, 1)
 				}
 
-				// get ids for a regulation, a chapter and a paragraph
-				IDs := strings.Split(href, "/")
-
-				// something wrong with the link - absent
-				if (len(IDs) < 3) || (len(IDs[0]) == 0) || (len(IDs[1]) == 0) || (len(IDs[2]) == 0) {
-					absent := entity.Absent{Pseudo: href, ParagraphID: paragraph.ID}
-					u.absentService.Create(ctx, absent)
-					continue
-				}
-
-				// get relative ID
-				regID, err := u.pseudoRegulationService.GetIDByPseudo(ctx, IDs[0])
+				// link for a paragraph
+				// get relative regulation ID
+				regulationID, err := u.pseudoRegulationService.GetIDByPseudo(ctx, rID)
 				if err != nil {
-					fmt.Printf("href = %s,ID: %s, error: %s", href, IDs[0], err.Error())
+					u.logging.Error(err)
 				}
+
 				// if id was not found - absent
-				if regID == 0 {
-					absent := entity.Absent{Pseudo: IDs[0], ParagraphID: paragraph.ID}
-					u.absentService.Create(ctx, absent)
+				if regulationID == 0 {
+					absent := entity.Absent{Pseudo: rID, ParagraphID: paragraph.ID}
+					err := u.absentService.Create(ctx, absent)
+					if err != nil {
+						u.logging.Error(err)
+					}
 					continue
 				}
-				chID, err := u.pseudoChapterService.GetIDByPseudo(ctx, IDs[1])
 
+				// get relative chapter ID
+				chapterID, err := u.pseudoChapterService.GetIDByPseudo(ctx, chID)
 				if err != nil {
-					fmt.Println(err.Error())
+					u.logging.Error(err)
 					return err
 				}
 
-				pID := IDs[2]
-
-				post := fmt.Sprintf("%d/%d/%s>", regID, chID, pID)
+				post := fmt.Sprintf("%d/%d/%s'>", regulationID, chapterID, pID)
 				content = strings.Replace(content, aLink, "<a href='"+post, 1)
 			}
+
 			err := u.paragraphService.UpdateOne(ctx, paragraph.ID, content)
 			if err != nil {
 				return err
@@ -202,4 +187,32 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 		}
 	}
 	return nil
+}
+
+func getIDs(url string) (regID, chID, pID string) {
+	fmt.Println(url)
+	matchedDoc, err := regexp.MatchString(`^\/document\/cons_doc_LAW_\d+\/$`, url)
+	if err != nil {
+		fmt.Println(err)
+		return "", "", ""
+	}
+	if matchedDoc {
+		rID := strings.Split(strings.Split(url, "cons_doc_LAW_")[1], "/")[0]
+		return rID, "", ""
+	}
+
+	matchedP, err := regexp.MatchString(`^\d+\/[a-zA-Z0-9]+\/\d+$`, url)
+	if err != nil {
+		fmt.Println(err)
+		return "", "", ""
+	}
+	if matchedP {
+		splited := strings.Split(url, "/")
+		rID := splited[0]
+		chID := splited[1]
+		pID := splited[2]
+		return rID, chID, pID
+	}
+	fmt.Println(url)
+	return "", "", ""
 }

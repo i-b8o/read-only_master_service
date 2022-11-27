@@ -3,13 +3,13 @@ package dto
 import (
 	"read-only_master_service/internal/domain/entity"
 
-	wr_pb "github.com/i-b8o/regulations_contracts/pb/writable/v1"
+	wr_pb "github.com/i-b8o/read-only_contracts/pb/writer/v1"
 )
 
 func CreateAllParagraphsRequestFromParagraphs(paragraphs []entity.Paragraph) (req wr_pb.CreateAllParagraphsRequest) {
-	var wrParagraphs []*wr_pb.WritableParagraph
+	var wrParagraphs []*wr_pb.WriterParagraph
 	for _, paragraph := range paragraphs {
-		p := &wr_pb.WritableParagraph{ID: paragraph.ID, Num: paragraph.Num, HasLinks: paragraph.HasLinks, IsTable: paragraph.IsTable, IsNFT: paragraph.IsNFT, Class: paragraph.Class, Content: paragraph.Content}
+		p := &wr_pb.WriterParagraph{ID: paragraph.ID, Num: paragraph.Num, HasLinks: paragraph.HasLinks, IsTable: paragraph.IsTable, IsNFT: paragraph.IsNFT, Class: paragraph.Class, Content: paragraph.Content, ChapterID: paragraph.ChapterID}
 		wrParagraphs = append(wrParagraphs, p)
 	}
 	req.Paragraphs = wrParagraphs

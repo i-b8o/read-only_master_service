@@ -7,7 +7,6 @@ import (
 
 type ChapterStorage interface {
 	Create(ctx context.Context, chapter entity.Chapter) (uint64, error)
-	DeleteAll(ctx context.Context, ID uint64) error
 	GetAllIds(ctx context.Context, ID uint64) ([]uint64, error)
 	GetRegulationIdByChapterId(ctx context.Context, ID uint64) (uint64, error)
 }
@@ -23,11 +22,6 @@ func NewChapterService(storage ChapterStorage) *chapterService {
 func (s chapterService) Create(ctx context.Context, chapter entity.Chapter) (uint64, error) {
 	return s.storage.Create(ctx, chapter)
 }
-
-func (s chapterService) DeleteAll(ctx context.Context, ID uint64) error {
-	return s.storage.DeleteAll(ctx, ID)
-}
-
 func (s chapterService) GetAllIds(ctx context.Context, ID uint64) ([]uint64, error) {
 	return s.storage.GetAllIds(ctx, ID)
 }

@@ -4,14 +4,14 @@ import (
 	"context"
 	"read-only_master_service/internal/domain/entity"
 
-	wr_pb "github.com/i-b8o/regulations_contracts/pb/writable/v1"
+	wr_pb "github.com/i-b8o/read-only_contracts/pb/writer/v1"
 )
 
 type regulationStorage struct {
-	client wr_pb.WritableRegulationGRPCClient
+	client wr_pb.WriterGRPCClient
 }
 
-func NewRegulationStorage(client wr_pb.WritableRegulationGRPCClient) *regulationStorage {
+func NewRegulationStorage(client wr_pb.WriterGRPCClient) *regulationStorage {
 	return &regulationStorage{client: client}
 }
 

@@ -50,7 +50,7 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 		if p.ID > 0 { // sometimes any paragraph can be without an id and no one will link to it
 			u.linkService.Create(ctx, entity.Link{ID: p.ID, ParagraphNum: p.Num, ChapterID: p.ChapterID, RID: rId})
 
-			speechTextSlice, err := speech.CreateSpeechText(p.Content)
+			speechTextSlice, err := speech.CreateSpeechText(p.Content, 255, 40)
 			if err != nil {
 				return err
 			}
@@ -63,7 +63,7 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 			}
 		}
 
-		// when the paragraph has additional IDs inside itself we need to create additional links for it
+		// when the paragraph has additional IDs inside itself we need to create for them additional links
 		hasIDsInside := strings.Contains(p.Content, "<a id=")
 		if hasIDsInside {
 			re := regexp.MustCompile(`<a id='(.*?)'`)

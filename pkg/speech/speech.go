@@ -26,7 +26,7 @@ func replaceRomanWithArabicString(text string) (result string) {
 			result += fmt.Sprintf("%s%d", space, arabic)
 			continue
 		}
-		result += " " + word
+		result += space + word
 	}
 
 	return result
@@ -40,19 +40,23 @@ func replaceRomanWithArabic(text []string) []string {
 	return result
 }
 
-func CreateSpeechText(text string) (speechText []string, err error) {
+// replace all roman with arabic numbers, if the input text is big enough split by sentences and if a sentence is huge split it by words
+func CreateSpeechText(text string, bigTextLength, bigSentenceLength int) (speechText []string, err error) {
 	text = dropHtml(text)
-	if len([]rune(text)) <= 250 {
+	// if the text not very big
+	if len([]rune(text)) <= bigTextLength {
+		// replace roman with arabic numbers
 		speechText = append(speechText, replaceRomanWithArabic([]string{text})...)
 		return speechText, nil
 	}
 
+	// if the text big enough split by sentences
 	sentences := strings.Split(text, ". ")
 	for _, sentence := range sentences {
 		words := strings.Split(sentence, " ")
-		if len(words) <= 40 {
+		if len(words) <= bigSentenceLength {
+			fmt.Println(sentence)
 			speechText = append(speechText, replaceRomanWithArabic([]string{sentence})...)
-			// fmt.Println("here " + speechText)
 			continue
 		}
 		parts := strings.Split(sentence, ",")

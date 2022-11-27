@@ -1,12 +1,12 @@
-package grpc_controller
+package controller
 
 import (
 	"context"
 	"read-only_master_service/internal/domain/entity"
 
-	controller_dto "read-only_master_service/internal/controller/grpc/dto"
+	controller_dto "read-only_master_service/internal/controller/dto"
 
-	pb "github.com/i-b8o/regulations_contracts/pb/supreme/v1"
+	pb "github.com/i-b8o/read-only_contracts/pb/master/v1"
 )
 
 type RegulationUsecase interface {
@@ -23,29 +23,31 @@ type ParagraphUsecase interface {
 	CreateParagraphs(ctx context.Context, paragraphs []entity.Paragraph) error
 }
 
-type SupremeRegulationGRPCService struct {
+type MasterGRPCService struct {
 	regulationUsecase RegulationUsecase
 	chapterUsecase    ChapterUsecase
 	paragraphUsecase  ParagraphUsecase
-	pb.UnimplementedSupremeRegulationGRPCServer
+	pb.UnimplementedMasterGRPCServer
 }
 
-func NewSupremeRegulationGRPCService(regulationUsecase RegulationUsecase, chapterUsecase ChapterUsecase, paragraphUsecase ParagraphUsecase) *SupremeRegulationGRPCService {
-	return &SupremeRegulationGRPCService{
+func NewMasterGRPCService(regulationUsecase RegulationUsecase, chapterUsecase ChapterUsecase, paragraphUsecase ParagraphUsecase) *MasterGRPCService {
+	return &MasterGRPCService{
 		regulationUsecase: regulationUsecase,
 		chapterUsecase:    chapterUsecase,
 		paragraphUsecase:  paragraphUsecase,
 	}
 }
 
-func (s *SupremeRegulationGRPCService) CreateRegulation(ctx context.Context, req *pb.CreateRegulationRequest) (*pb.CreateRegulationResponse, error) {
+func (s *MasterGRPCService) CreateRegulation(ctx context.Context, req *pb.CreateRegulationRequest) (*pb.CreateRegulationResponse, error) {
 	regulation := controller_dto.RegulationFromCreateRegulationRequset(req)
+	// create a regulation and an id-pseudoId relationship
 	ID, err := s.regulationUsecase.CreateRegulation(ctx, regulation)
 	return &pb.CreateRegulationResponse{ID: ID}, err
 }
 
-func (s *SupremeRegulationGRPCService) CreateChapter(ctx context.Context, req *pb.CreateChapterRequest) (*pb.CreateChapterResponse, error) {
+func (s *MasterGRPCService) CreateChapter(ctx context.Context, req *pb.CreateChapterRequest) (*pb.CreateChapterResponse, error) {
 	chapter := controller_dto.ChapterFromCreateChapterRequest(req)
+	// create a chapter, create a link for the chapter and create an id-pseudoId relationship
 	id, err := s.chapterUsecase.CreateChapter(ctx, chapter)
 	if err != nil {
 		return nil, err
@@ -53,8 +55,9 @@ func (s *SupremeRegulationGRPCService) CreateChapter(ctx context.Context, req *p
 	return &pb.CreateChapterResponse{ID: id}, nil
 }
 
-func (s *SupremeRegulationGRPCService) CreateParagraphs(ctx context.Context, req *pb.CreateParagraphsRequest) (*pb.Empty, error) {
+func (s *MasterGRPCService) CreateParagraphs(ctx context.Context, req *pb.CreateParagraphsRequest) (*pb.Empty, error) {
 	paragraphs := controller_dto.ParagraphsFromCreateParagraphsRequest(req)
+	// cretae paragraphs, create links and speechs for paragraphs
 	err := s.paragraphUsecase.CreateParagraphs(ctx, paragraphs)
 	if err != nil {
 		return nil, err
@@ -62,13 +65,13 @@ func (s *SupremeRegulationGRPCService) CreateParagraphs(ctx context.Context, req
 	return &pb.Empty{}, nil
 }
 
-func (s *SupremeRegulationGRPCService) GenerateLinks(ctx context.Context, req *pb.GenerateLinksRequest) (*pb.GenerateLinksResponse, error) {
+func (s *MasterGRPCService) GenerateLinks(ctx context.Context, req *pb.GenerateLinksRequest) (*pb.GenerateLinksResponse, error) {
 	ID := req.GetID()
 	err := s.regulationUsecase.GenerateLinks(ctx, ID)
 	return &pb.GenerateLinksResponse{ID: ID}, err
 }
 
-func (s *SupremeRegulationGRPCService) DeleteRegulation(ctx context.Context, req *pb.DeleteRegulationRequest) (*pb.Empty, error) {
+func (s *MasterGRPCService) DeleteRegulation(ctx context.Context, req *pb.DeleteRegulationRequest) (*pb.Empty, error) {
 	ID := req.GetID()
 	err := s.regulationUsecase.DeleteRegulation(ctx, ID)
 	if err != nil {

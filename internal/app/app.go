@@ -10,14 +10,14 @@ import (
 	postgressql "read-only_master_service/internal/adapters/db/postgresql"
 	grpc_adapter "read-only_master_service/internal/adapters/grpc/v1"
 	"read-only_master_service/internal/config"
-	grpc_controller "read-only_master_service/internal/controller/grpc"
+	grpc_controller "read-only_master_service/internal/controller"
 	"read-only_master_service/internal/domain/service"
 	usecase_chapter "read-only_master_service/internal/domain/usecase/chapter"
 	usecase_paragraph "read-only_master_service/internal/domain/usecase/paragraph"
 	regulation_usecase "read-only_master_service/internal/domain/usecase/regulation"
 
-	pb "github.com/i-b8o/regulations_contracts/pb/supreme/v1"
-	wr_pb "github.com/i-b8o/regulations_contracts/pb/writable/v1"
+	pb "github.com/i-b8o/read-only_contracts/pb/master/v1"
+	wr_pb "github.com/i-b8o/read-only_contracts/pb/writer/v1"
 
 	"golang.org/x/sync/errgroup"
 
@@ -38,7 +38,7 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 
 	logger.Print("Postgres initializing")
 	pgConfig := postgresql.NewPgConfig(
-		config.PostgreSQL.PostgreUsername, config.PostgreSQL.Password,
+		config.PostgreSQL.Username, config.PostgreSQL.Password,
 		config.PostgreSQL.Host, config.PostgreSQL.Port, config.PostgreSQL.Database,
 	)
 
@@ -48,13 +48,13 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	}
 
 	conn, err := grpc.Dial(
-		fmt.Sprintf("%s:%s", config.WritableGRPC.IP, config.WritableGRPC.Port),
+		fmt.Sprintf("%s:%s", config.Writer.IP, config.Writer.Port),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
 		return App{}, err
 	}
-	grpcClient := wr_pb.NewWritableRegulationGRPCClient(conn)
+	grpcClient := wr_pb.NewWriterGRPCClient(conn)
 
 	absentAdapter := postgressql.NewAbsentStorage(pgClient)
 	linkAdapter := postgressql.NewLinkStorage(pgClient)
@@ -78,42 +78,10 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	regulationUsecase := regulation_usecase.NewRegulationUsecase(regulationService, chapterService, paragraphService, absentService, pseudoRegulationService, pseudoChapterAdapter, logger)
 	chapterUsecase := usecase_chapter.NewChapterUsecase(chapterService, linkService, pseudoChapterService, logger)
 	paragraphUsecase := usecase_paragraph.NewParagraphUsecase(paragraphService, chapterService, linkService, speechService)
-	// read ca's cert, verify to client's certificate
-	// homeDir, err := os.UserHomeDir()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// caPem, err := ioutil.ReadFile(homeDir + "/certs/ca-cert.pem")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 
-	// // create cert pool and append ca's cert
-	// certPool := x509.NewCertPool()
-	// if !certPool.AppendCertsFromPEM(caPem) {
-	// 	log.Fatal(err)
-	// }
-
-	// // read server cert & key
-	// serverCert, err := tls.LoadX509KeyPair(homeDir+"/certs/server-cert.pem", homeDir+"/certs/server-key.pem")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // configuration of the certificate what we want to
-	// conf := &tls.Config{
-	// 	Certificates: []tls.Certificate{serverCert},
-	// 	ClientAuth:   tls.RequireAndVerifyClientCert,
-	// 	ClientCAs:    certPool,
-	// }
-
-	// //create tls certificate
-	// tlsCredentials := credentials.NewTLS(conf)
-
-	// grpcServer := grpc.NewServer(grpc.Creds(tlsCredentials))
 	grpcServer := grpc.NewServer()
-	server := grpc_controller.NewSupremeRegulationGRPCService(regulationUsecase, chapterUsecase, paragraphUsecase)
-	pb.RegisterSupremeRegulationGRPCServer(grpcServer, server)
+	server := grpc_controller.NewMasterGRPCService(regulationUsecase, chapterUsecase, paragraphUsecase)
+	pb.RegisterMasterGRPCServer(grpcServer, server)
 
 	return App{cfg: config, grpcServer: grpcServer, logger: logger}, nil
 }
@@ -129,12 +97,12 @@ func (a *App) Run(ctx context.Context) error {
 func (a *App) startGRPC(ctx context.Context) error {
 
 	a.logger.Info("start GRPC")
-	address := fmt.Sprintf("%s:%s", a.cfg.GRPC.BindIP, a.cfg.GRPC.Port)
+	address := fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		a.logger.Fatal("cannot start GRPC server: ", err)
 	}
-	a.logger.Print("start GRPC server on address %s", address)
+	a.logger.Printf("start GRPC server on address %s", address)
 	err = a.grpcServer.Serve(listener)
 	if err != nil {
 		a.logger.Fatal("cannot start GRPC server: ", err)
