@@ -44,12 +44,6 @@ github.com/i-b8o/logging v0.0.0-20221105180025-715df517e91e h1:79fUA9ESQwOOydQ1t
 github.com/i-b8o/logging v0.0.0-20221105180025-715df517e91e/go.mod h1:1yilJB+QuSWKvpRPTck8bq2jwPmOklJrqkKR5/q3EGg=
 github.com/i-b8o/nonsense v0.0.0-20220923103144-3618623a71ba h1:aPOsAE2mvEdAMxvwKKIpjDT0CQ7Dtd78zTBKmK/U8bc=
 github.com/i-b8o/nonsense v0.0.0-20220923103144-3618623a71ba/go.mod h1:IFuDNwZdIfZLDsIOHKLUnAnRer0e+GMfD2whNLhgwRA=
-github.com/i-b8o/read-only_contracts v0.0.0-20221122193340-68e086fe0600 h1:le6udbMs4PD7/tK0lfbUXsOd3dvkeY6pDVnrG8D/gz4=
-github.com/i-b8o/read-only_contracts v0.0.0-20221122193340-68e086fe0600/go.mod h1:+xArhQldMdQb+B4l1IFwRUmJNoTT1zJ4cx9vI765Qcc=
-github.com/i-b8o/read-only_contracts v0.0.0-20221125173004-a1c63cca76fb h1:+Rjv4m4dRGx2YTjpbsoo5pQQ43yEWq6WsFWDY46N7AQ=
-github.com/i-b8o/read-only_contracts v0.0.0-20221125173004-a1c63cca76fb/go.mod h1:+xArhQldMdQb+B4l1IFwRUmJNoTT1zJ4cx9vI765Qcc=
-github.com/i-b8o/read-only_contracts v0.0.0-20221125173518-14ca2b57373a h1:mbsdTbmDRBiKp435iskHaQivdfBZRq2xmGELwxcuUKM=
-github.com/i-b8o/read-only_contracts v0.0.0-20221125173518-14ca2b57373a/go.mod h1:+xArhQldMdQb+B4l1IFwRUmJNoTT1zJ4cx9vI765Qcc=
 github.com/i-b8o/read-only_contracts v0.0.0-20221125193235-3e35735eea1d h1:XPWmY2JjL+8DffovuVyGFTSRhZSz1aSIFCI5H/8iCM4=
 github.com/i-b8o/read-only_contracts v0.0.0-20221125193235-3e35735eea1d/go.mod h1:+xArhQldMdQb+B4l1IFwRUmJNoTT1zJ4cx9vI765Qcc=
 github.com/ilyakaznacheev/cleanenv v1.4.1 h1:zroQjmb8e3w6DBcgbgFXtlQTX8xP8XCOg1etuYv4hX0=
