@@ -2,6 +2,8 @@ package grpc_adapter
 
 import (
 	"context"
+	"fmt"
+	"read-only_master_service/internal/adapters/grpc/v1/dto"
 	"read-only_master_service/internal/domain/entity"
 
 	wr_pb "github.com/i-b8o/read-only_contracts/pb/writer/v1"
@@ -29,4 +31,13 @@ func (rs *regulationStorage) Delete(ctx context.Context, regulationID uint64) er
 	req := &wr_pb.DeleteRegulationRequest{ID: regulationID}
 	_, err := rs.client.DeleteRegulation(ctx, req)
 	return err
+}
+
+func (rs *regulationStorage) GetAll(ctx context.Context) ([]entity.Regulation, error) {
+	resp, err := rs.client.GetRegulations(ctx, &wr_pb.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(resp.Regulations)
+	return dto.CreateRegulationsFromGetRegulationsResponse(resp), nil
 }

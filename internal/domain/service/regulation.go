@@ -6,6 +6,7 @@ import (
 )
 
 type RegulationStorage interface {
+	GetAll(ctx context.Context) ([]entity.Regulation, error)
 	Create(ctx context.Context, regulation entity.Regulation) (uint64, error)
 	Delete(ctx context.Context, regulationID uint64) error
 }
@@ -24,4 +25,8 @@ func (s *regulationService) Create(ctx context.Context, regulation entity.Regula
 
 func (s *regulationService) Delete(ctx context.Context, regulationId uint64) error {
 	return s.storage.Delete(ctx, regulationId)
+}
+
+func (s *regulationService) GetAll(ctx context.Context) ([]entity.Regulation, error) {
+	return s.storage.GetAll(ctx)
 }

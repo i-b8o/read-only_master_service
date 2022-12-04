@@ -11,6 +11,7 @@ import (
 )
 
 type RegulationService interface {
+	GetAll(ctx context.Context) ([]entity.Regulation, error)
 	Create(ctx context.Context, regulation entity.Regulation) (uint64, error)
 	Delete(ctx context.Context, regulationId uint64) error
 }
@@ -51,6 +52,10 @@ type regulationUsecase struct {
 
 func NewRegulationUsecase(regulationService RegulationService, chapterService ChapterService, paragraphService ParagraphService, absentService AbsentService, pseudoRegulationService PseudoRegulationService, pseudoChapterService PseudoChapterService, logging logging.Logger) *regulationUsecase {
 	return &regulationUsecase{regulationService: regulationService, chapterService: chapterService, paragraphService: paragraphService, absentService: absentService, pseudoRegulationService: pseudoRegulationService, pseudoChapterService: pseudoChapterService, logging: logging}
+}
+
+func (u regulationUsecase) GetAll(ctx context.Context) ([]entity.Regulation, error) {
+	return u.regulationService.GetAll(ctx)
 }
 
 func (u regulationUsecase) CreateRegulation(ctx context.Context, regulation entity.Regulation) (uint64, error) {

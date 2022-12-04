@@ -10,7 +10,9 @@ import (
 	postgressql "read-only_master_service/internal/adapters/db/postgresql"
 	grpc_adapter "read-only_master_service/internal/adapters/grpc/v1"
 	"read-only_master_service/internal/config"
-	grpc_controller "read-only_master_service/internal/controller"
+	chapter_controller "read-only_master_service/internal/controller/chapter"
+	paragraph_controller "read-only_master_service/internal/controller/paragraph"
+	regulation_controller "read-only_master_service/internal/controller/regulation"
 	"read-only_master_service/internal/domain/service"
 	usecase_chapter "read-only_master_service/internal/domain/usecase/chapter"
 	usecase_paragraph "read-only_master_service/internal/domain/usecase/paragraph"
@@ -80,8 +82,15 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	paragraphUsecase := usecase_paragraph.NewParagraphUsecase(paragraphService, chapterService, linkService, speechService)
 
 	grpcServer := grpc.NewServer()
-	server := grpc_controller.NewMasterGRPCService(regulationUsecase, chapterUsecase, paragraphUsecase)
-	pb.RegisterMasterGRPCServer(grpcServer, server)
+
+	regulation_server := regulation_controller.NewRegulationGRPCService(regulationUsecase)
+	pb.RegisterMasterRegulationGRPCServer(grpcServer, regulation_server)
+
+	chapter_server := chapter_controller.NewChapterGRPCService(chapterUsecase)
+	pb.RegisterMasterChapterGRPCServer(grpcServer, chapter_server)
+
+	paragraph_server := paragraph_controller.NewParagraphGRPCService(paragraphUsecase)
+	pb.RegisterMasterParagraphGRPCServer(grpcServer, paragraph_server)
 
 	return App{cfg: config, grpcServer: grpcServer, logger: logger}, nil
 }

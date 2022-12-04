@@ -11,6 +11,7 @@ import (
 
 type ParagraphService interface {
 	CreateAll(ctx context.Context, paragraphs []entity.Paragraph) error
+	UpdateOne(ctx context.Context, id uint64, content string) error
 }
 
 type ChapterService interface {
@@ -34,6 +35,9 @@ type paragraphUsecase struct {
 
 func NewParagraphUsecase(paragraphService ParagraphService, chapterService ChapterService, linkService LinkService, speechService SpeechService) *paragraphUsecase {
 	return &paragraphUsecase{paragraphService: paragraphService, chapterService: chapterService, linkService: linkService, speechService: speechService}
+}
+func (u paragraphUsecase) UpdateOne(ctx context.Context, id uint64, content string) error {
+	return u.paragraphService.UpdateOne(ctx, id, content)
 }
 
 func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []entity.Paragraph) error {
