@@ -10,17 +10,17 @@ import (
 )
 
 type regulationStorage struct {
-	client wr_pb.WriterGRPCClient
+	client wr_pb.WriterRegulationGRPCClient
 }
 
-func NewRegulationStorage(client wr_pb.WriterGRPCClient) *regulationStorage {
+func NewRegulationStorage(client wr_pb.WriterRegulationGRPCClient) *regulationStorage {
 	return &regulationStorage{client: client}
 }
 
 func (rs *regulationStorage) Create(ctx context.Context, regulation entity.Regulation) (uint64, error) {
 	// Mapping
 	req := &wr_pb.CreateRegulationRequest{Name: regulation.Name, Abbreviation: regulation.Abbreviation, Title: regulation.Title}
-	resp, err := rs.client.CreateRegulation(ctx, req)
+	resp, err := rs.client.Create(ctx, req)
 	if err != nil {
 		return 0, err
 	}
@@ -29,12 +29,12 @@ func (rs *regulationStorage) Create(ctx context.Context, regulation entity.Regul
 
 func (rs *regulationStorage) Delete(ctx context.Context, regulationID uint64) error {
 	req := &wr_pb.DeleteRegulationRequest{ID: regulationID}
-	_, err := rs.client.DeleteRegulation(ctx, req)
+	_, err := rs.client.Delete(ctx, req)
 	return err
 }
 
 func (rs *regulationStorage) GetAll(ctx context.Context) ([]entity.Regulation, error) {
-	resp, err := rs.client.GetRegulations(ctx, &wr_pb.Empty{})
+	resp, err := rs.client.GetAll(ctx, &wr_pb.Empty{})
 	if err != nil {
 		return nil, err
 	}

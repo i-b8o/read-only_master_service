@@ -20,7 +20,6 @@ type ChapterService interface {
 	GetAllIds(ctx context.Context, ID uint64) ([]uint64, error)
 }
 type ParagraphService interface {
-	DeleteForRegulation(ctx context.Context, chaptersIDs []uint64) error
 	GetParagraphsWithHrefs(ctx context.Context, chapterId uint64) ([]entity.Paragraph, error)
 	UpdateOne(ctx context.Context, id uint64, content string) error
 }

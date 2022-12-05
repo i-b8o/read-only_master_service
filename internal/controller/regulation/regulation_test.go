@@ -90,9 +90,9 @@ func TestCreate(t *testing.T) {
 			}
 		}
 
-		assert.Equal(id, e.ID)
-		assert.Equal(name, test.input.RegulationName)
-		assert.Equal(abbreviation, test.input.Abbreviation)
+		assert.Equal(e.ID, id)
+		assert.Equal(test.input.RegulationName, name)
+		assert.Equal(test.input.Abbreviation, abbreviation)
 		assert.True(proto.Equal(test.expected, e), fmt.Sprintf("CreateRegulation(%v)=%v want: %v", test.input, e, test.expected))
 		assert.Equal(test.err, err)
 		// pseudo regulation
@@ -229,7 +229,7 @@ func TestUpdateLinks(t *testing.T) {
 			input:      &pb.UpdateLinksRequest{ID: 1},
 			expected:   &pb.UpdateLinksResponse{ID: 1},
 			paragraphs: []entity.Paragraph{entity.Paragraph{ID: 1, Num: 1, HasLinks: true, IsTable: false, IsNFT: false, Class: "any-class", Content: "Содержимое <a id=\"dst101675\"></a> первого <a href='1/3/111'>параграфа</a>", ChapterID: 1}, entity.Paragraph{ID: 2, Num: 2, IsTable: true, IsNFT: true, HasLinks: true, Class: "any-class", Content: "Содержимое второго <a href='372952/4e92c731969781306ebd1095867d2385f83ac7af/335104'>пункта 5.14</a> параграфа", ChapterID: 1}, entity.Paragraph{ID: 3, Num: 3, IsTable: false, IsNFT: false, HasLinks: true, Class: "any-class", Content: "<a id='335050'></a>Содержимое третьего параграфа<a href='/document/cons_doc_LAW_2875/'>таблицей N 2</a>.", ChapterID: 1}},
-			absent:     []entity.Absent{entity.Absent{Pseudo: "372952", ParagraphID: 2}, entity.Absent{Pseudo: "2875", ParagraphID: 3}},
+			absent:     []entity.Absent{entity.Absent{Pseudo: "aaaaa", Done: false, ParagraphID: 1}, entity.Absent{Pseudo: "bbbbb", Done: false, ParagraphID: 2}, entity.Absent{Pseudo: "ccccc", Done: false, ParagraphID: 3}, entity.Absent{Pseudo: "372952", Done: false, ParagraphID: 2}, entity.Absent{Pseudo: "2875", Done: false, ParagraphID: 3}},
 
 			err: nil,
 		},
