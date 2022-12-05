@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/i-b8o/logging v0.0.0-20221105180025-715df517e91e
 	github.com/i-b8o/nonsense v0.0.0-20220923103144-3618623a71ba
-	github.com/i-b8o/read-only_contracts v0.0.0-20221204172258-4c7bd1a281bc
+	github.com/i-b8o/read-only_contracts v0.0.0-20221205082043-017b9096c2d9
 	github.com/ilyakaznacheev/cleanenv v1.4.1
 	github.com/jackc/pgconn v1.13.0
 	github.com/jackc/pgx/v4 v4.17.2

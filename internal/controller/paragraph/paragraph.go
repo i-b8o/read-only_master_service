@@ -14,17 +14,17 @@ type ParagraphUsecase interface {
 	UpdateOne(ctx context.Context, id uint64, content string) error
 }
 
-type ParagraphGRPCService struct {
+type ParagraphGrpcController struct {
 	paragraphUsecase ParagraphUsecase
 	pb.UnimplementedMasterParagraphGRPCServer
 }
 
-func NewParagraphGRPCService(paragraphUsecase ParagraphUsecase) *ParagraphGRPCService {
-	return &ParagraphGRPCService{
+func NewParagraphGrpcController(paragraphUsecase ParagraphUsecase) *ParagraphGrpcController {
+	return &ParagraphGrpcController{
 		paragraphUsecase: paragraphUsecase,
 	}
 }
-func (s *ParagraphGRPCService) Update(ctx context.Context, req *pb.UpdateParagraphRequest) (*pb.Empty, error) {
+func (s *ParagraphGrpcController) Update(ctx context.Context, req *pb.UpdateParagraphRequest) (*pb.Empty, error) {
 	ID := req.GetID()
 	content := req.Content
 	err := s.paragraphUsecase.UpdateOne(ctx, ID, content)
@@ -32,7 +32,7 @@ func (s *ParagraphGRPCService) Update(ctx context.Context, req *pb.UpdateParagra
 
 }
 
-func (s *ParagraphGRPCService) Create(ctx context.Context, req *pb.CreateParagraphsRequest) (*pb.Empty, error) {
+func (s *ParagraphGrpcController) Create(ctx context.Context, req *pb.CreateParagraphsRequest) (*pb.Empty, error) {
 	paragraphs := controller_dto.ParagraphsFromCreateParagraphsRequest(req)
 	// cretae paragraphs, create links and speechs for paragraphs
 	err := s.paragraphUsecase.CreateParagraphs(ctx, paragraphs)

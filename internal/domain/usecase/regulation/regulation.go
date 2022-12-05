@@ -28,6 +28,7 @@ type ParagraphService interface {
 type AbsentService interface {
 	Done(ctx context.Context, pseudo string) error
 	Create(ctx context.Context, absent entity.Absent) error
+	GetAll(ctx context.Context) ([]*entity.Absent, error)
 }
 
 type PseudoRegulationService interface {
@@ -83,6 +84,15 @@ func (u regulationUsecase) CreateRegulation(ctx context.Context, regulation enti
 	return ID, nil
 }
 
+func (u regulationUsecase) GetAbsents(ctx context.Context) ([]*entity.Absent, error) {
+	absents, err := u.absentService.GetAll(ctx)
+	if err != nil {
+		u.logging.Error(err)
+		return nil, err
+	}
+
+	return absents, nil
+}
 func (u regulationUsecase) DeleteRegulation(ctx context.Context, ID uint64) error {
 	// delete a regulation
 	err := u.regulationService.Delete(ctx, ID)

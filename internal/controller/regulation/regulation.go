@@ -13,27 +13,28 @@ type RegulationUsecase interface {
 	CreateRegulation(ctx context.Context, regulation entity.Regulation) (uint64, error)
 	GenerateLinks(ctx context.Context, regulationID uint64) error
 	DeleteRegulation(ctx context.Context, ID uint64) error
+	GetAbsents(ctx context.Context) ([]*entity.Absent, error)
 }
 
-type RegulationGRPCService struct {
+type RegulationGrpcController struct {
 	regulationUsecase RegulationUsecase
 	pb.UnimplementedMasterRegulationGRPCServer
 }
 
-func NewRegulationGRPCService(regulationUsecase RegulationUsecase) *RegulationGRPCService {
-	return &RegulationGRPCService{
+func NewRegulationGrpcController(regulationUsecase RegulationUsecase) *RegulationGrpcController {
+	return &RegulationGrpcController{
 		regulationUsecase: regulationUsecase,
 	}
 }
 
-func (s *RegulationGRPCService) Create(ctx context.Context, req *pb.CreateRegulationRequest) (*pb.CreateRegulationResponse, error) {
+func (s *RegulationGrpcController) Create(ctx context.Context, req *pb.CreateRegulationRequest) (*pb.CreateRegulationResponse, error) {
 	regulation := regulation_dto.RegulationFromCreateRegulationRequest(req)
 	// create a regulation and an id-pseudoId relationship
 	ID, err := s.regulationUsecase.CreateRegulation(ctx, regulation)
 	return &pb.CreateRegulationResponse{ID: ID}, err
 }
 
-func (s *RegulationGRPCService) GetAll(ctx context.Context, req *pb.Empty) (*pb.GetAllRegulationsResponse, error) {
+func (s *RegulationGrpcController) GetAll(ctx context.Context, req *pb.Empty) (*pb.GetAllRegulationsResponse, error) {
 	domainRegulations, err := s.regulationUsecase.GetAll(ctx)
 	if err != nil {
 		return nil, err
@@ -42,13 +43,13 @@ func (s *RegulationGRPCService) GetAll(ctx context.Context, req *pb.Empty) (*pb.
 	return &pb.GetAllRegulationsResponse{Regulations: regulations}, nil
 }
 
-func (s *RegulationGRPCService) UpdateLinks(ctx context.Context, req *pb.UpdateLinksRequest) (*pb.UpdateLinksResponse, error) {
+func (s *RegulationGrpcController) UpdateLinks(ctx context.Context, req *pb.UpdateLinksRequest) (*pb.UpdateLinksResponse, error) {
 	ID := req.GetID()
 	err := s.regulationUsecase.GenerateLinks(ctx, ID)
 	return &pb.UpdateLinksResponse{ID: ID}, err
 }
 
-func (s *RegulationGRPCService) Delete(ctx context.Context, req *pb.DeleteRegulationRequest) (*pb.Empty, error) {
+func (s *RegulationGrpcController) Delete(ctx context.Context, req *pb.DeleteRegulationRequest) (*pb.Empty, error) {
 	ID := req.GetID()
 	err := s.regulationUsecase.DeleteRegulation(ctx, ID)
 	if err != nil {
@@ -57,4 +58,10 @@ func (s *RegulationGRPCService) Delete(ctx context.Context, req *pb.DeleteRegula
 	return &pb.Empty{}, err
 }
 
-// TODO UpdateAbsent
+func (s *RegulationGrpcController) GetAbsents(ctx context.Context, req *pb.Empty) (*pb.GetAbsentsResponse, error) {
+	absents, err := s.regulationUsecase.GetAbsents(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return regulation_dto.GetAbsentsResponseFromAbsents(absents), err
+}

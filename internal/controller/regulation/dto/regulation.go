@@ -22,3 +22,12 @@ func RegulationsFromRegulations(domainRegulations []entity.Regulation) (regulati
 	}
 	return regulations
 }
+
+func GetAbsentsResponseFromAbsents(domainAbsents []*entity.Absent) (response *pb.GetAbsentsResponse) {
+	var absents []*pb.MasterAbsent
+	for _, a := range domainAbsents {
+		absent := pb.MasterAbsent{ID: a.ID, Pseudo: a.Pseudo, Done: a.Done, ParagraphId: a.ParagraphID}
+		absents = append(absents, &absent)
+	}
+	return &pb.GetAbsentsResponse{Absents: absents}
+}

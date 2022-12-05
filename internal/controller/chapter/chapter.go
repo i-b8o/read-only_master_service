@@ -12,18 +12,18 @@ type ChapterUsecase interface {
 	CreateChapter(ctx context.Context, chapter entity.Chapter) (uint64, error)
 }
 
-type ChapterGRPCService struct {
+type ChapterGrpcController struct {
 	chapterUsecase ChapterUsecase
 	pb.UnimplementedMasterChapterGRPCServer
 }
 
-func NewChapterGRPCService(chapterUsecase ChapterUsecase) *ChapterGRPCService {
-	return &ChapterGRPCService{
+func NewChapterGrpcController(chapterUsecase ChapterUsecase) *ChapterGrpcController {
+	return &ChapterGrpcController{
 		chapterUsecase: chapterUsecase,
 	}
 }
 
-func (s *ChapterGRPCService) Create(ctx context.Context, req *pb.CreateChapterRequest) (*pb.CreateChapterResponse, error) {
+func (s *ChapterGrpcController) Create(ctx context.Context, req *pb.CreateChapterRequest) (*pb.CreateChapterResponse, error) {
 	chapter := chapter_dto.ChapterFromCreateChapterRequest(req)
 	// create a chapter, create a link for the chapter and create an id-pseudoId relationship
 	id, err := s.chapterUsecase.CreateChapter(ctx, chapter)

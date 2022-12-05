@@ -121,6 +121,43 @@ func TestCreate(t *testing.T) {
 		t.Log(err)
 	}
 }
+func TestGetAbsents(t *testing.T) {
+	assert := assert.New(t)
+	pgClient := setupDB()
+	defer pgClient.Close()
+	conn, err := grpc.Dial(
+		fmt.Sprintf("%s:%s", "0.0.0.0", "30002"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	client := pb.NewMasterRegulationGRPCClient(conn)
+	defer conn.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	tests := []struct {
+		input    *pb.Empty
+		expected *pb.GetAbsentsResponse
+		err      error
+	}{
+		{
+			input:    &pb.Empty{},
+			expected: &pb.GetAbsentsResponse{Absents: []*pb.MasterAbsent{&pb.MasterAbsent{ID: 1, Pseudo: "aaaaa", Done: false, ParagraphId: 1}, &pb.MasterAbsent{ID: 2, Pseudo: "bbbbb", Done: true, ParagraphId: 2}, &pb.MasterAbsent{ID: 3, Pseudo: "ccccc", Done: false, ParagraphId: 3}}},
+			err:      nil,
+		},
+	}
+
+	for _, test := range tests {
+		resp, err := client.GetAbsents(ctx, test.input)
+		if err != nil {
+			t.Log(err)
+		}
+		assert.True(proto.Equal(test.expected, resp), fmt.Sprintf("GetAbsents(%v)=%v want: %v", test.input, resp, test.expected))
+		assert.Equal(test.err, err, err)
+	}
+}
 
 func TestGetAll(t *testing.T) {
 	assert := assert.New(t)
@@ -155,7 +192,7 @@ func TestGetAll(t *testing.T) {
 		if err != nil {
 			t.Log(err)
 		}
-		assert.True(proto.Equal(test.expected, resp), fmt.Sprintf("GetAllRegulations(%v)=%v want: %v", test.input, resp, test.expected))
+		assert.True(proto.Equal(test.expected, resp), fmt.Sprintf("GetAll(%v)=%v want: %v", test.input, resp, test.expected))
 		assert.Equal(test.err, err, err)
 	}
 }
@@ -175,6 +212,11 @@ func TestUpdateLinks(t *testing.T) {
 	defer conn.Close()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	_, err = pgClient.Exec(ctx, resetDB)
+	if err != nil {
+		t.Log(err)
+	}
 
 	tests := []struct {
 		input      *pb.UpdateLinksRequest
@@ -248,7 +290,6 @@ func TestUpdateLinks(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-
 	assert := assert.New(t)
 	pgClient := setupDB()
 	defer pgClient.Close()
@@ -451,4 +492,5 @@ INSERT INTO chapter ("name", "num", "order_num","r_id", "updated_at") VALUES ('�
 INSERT INTO paragraph ("paragraph_id","order_num","is_table","is_nft","has_links","class","content","c_id") VALUES (1,1,false,false,true,'any-class','Содержимое <a id="dst101675"></a> первого <a href=''11111/a3a3a3/111''>параграфа</a>', 1), (2,2,true,true,true,'any-class','Содержимое второго <a href=''372952/4e92c731969781306ebd1095867d2385f83ac7af/335104''>пункта 5.14</a> параграфа', 1), (3,3,false,false,true,'any-class','<a id=''335050''></a>Содержимое третьего параграфа<a href=''/document/cons_doc_LAW_2875/''>таблицей N 2</a>.', 1);
 INSERT INTO pseudo_regulation ("r_id", "pseudo") VALUES (1, 11111);
 INSERT INTO pseudo_chapter ("c_id", "pseudo") VALUES (3, 'a3a3a3');
+INSERT INTO absent_reg ("pseudo", "done", "paragraph_id") VALUES ('aaaaa', false, 1), ('bbbbb', true, 2), ('ccccc', false, 3);
 `

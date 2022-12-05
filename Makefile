@@ -21,5 +21,5 @@ gen:
 	protoc -I=app/internal/proto/ --go_out=app/internal/pb/ app/internal/proto/*.proto
 	protoc --go-grpc_out=app/internal/pb/ app/internal/proto/*.proto -I=app/internal/proto/
 
-mod:
-	cd app;go mod tidy
+update_contracts:
+	go get -u github.com/i-b8o/read-only_contracts@$m

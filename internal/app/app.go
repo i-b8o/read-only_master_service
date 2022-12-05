@@ -83,13 +83,13 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 
 	grpcServer := grpc.NewServer()
 
-	regulation_server := regulation_controller.NewRegulationGRPCService(regulationUsecase)
+	regulation_server := regulation_controller.NewRegulationGrpcController(regulationUsecase)
 	pb.RegisterMasterRegulationGRPCServer(grpcServer, regulation_server)
 
-	chapter_server := chapter_controller.NewChapterGRPCService(chapterUsecase)
+	chapter_server := chapter_controller.NewChapterGrpcController(chapterUsecase)
 	pb.RegisterMasterChapterGRPCServer(grpcServer, chapter_server)
 
-	paragraph_server := paragraph_controller.NewParagraphGRPCService(paragraphUsecase)
+	paragraph_server := paragraph_controller.NewParagraphGrpcController(paragraphUsecase)
 	pb.RegisterMasterParagraphGRPCServer(grpcServer, paragraph_server)
 
 	return App{cfg: config, grpcServer: grpcServer, logger: logger}, nil

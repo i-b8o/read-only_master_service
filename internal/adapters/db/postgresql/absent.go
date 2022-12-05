@@ -24,6 +24,31 @@ func (as *absentStorage) Create(ctx context.Context, absent entity.Absent) error
 	return nil
 }
 
+// Create
+func (as *absentStorage) GetAll(ctx context.Context) ([]*entity.Absent, error) {
+	sql := `select id, pseudo, done, paragraph_id from absent_reg `
+	var absents []*entity.Absent
+
+	rows, err := as.client.Query(ctx, sql)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		absent := &entity.Absent{}
+		err = rows.Scan(&absent.ID, &absent.Pseudo, &absent.Done, &absent.ParagraphID)
+		if err != nil {
+			return nil, err
+		}
+
+		absents = append(absents, absent)
+	}
+
+	return absents, nil
+}
+
 // Delete
 func (as *absentStorage) DeleteForParagraph(ctx context.Context, paragraphID uint64) error {
 	sql := `delete from absent_reg where paragraph_id=$1`
