@@ -21,10 +21,3 @@ CREATE TABLE link (
     c_id integer,
     r_id integer
 );
-
-CREATE TABLE speech (
-    id SERIAL PRIMARY KEY,
-    order_num INT NOT NULL CHECK (order_num >= 0),
-    content TEXT,
-    paragraph_id INT NOT NULL CHECK (paragraph_id >= 0)
-);

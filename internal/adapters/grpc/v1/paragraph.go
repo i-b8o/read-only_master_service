@@ -22,6 +22,15 @@ func (ps *paragraphStorage) CreateAll(ctx context.Context, paragraphs []entity.P
 	return err
 }
 
+func (ps *paragraphStorage) GetOne(ctx context.Context, paragraphId uint64) (entity.Paragraph, error) {
+	req := &wr_pb.GetOneParagraphRequest{ID: paragraphId}
+	resp, err := ps.client.GetOne(ctx, req)
+	if err != nil {
+		return entity.Paragraph{}, err
+	}
+	return dto.ParagraphFromGetOneResponse(resp), nil
+}
+
 func (ps *paragraphStorage) GetParagraphsWithHrefs(ctx context.Context, chapterId uint64) ([]entity.Paragraph, error) {
 	req := &wr_pb.GetParagraphsWithHrefsRequest{ID: chapterId}
 	resp, err := ps.client.GetWithHrefs(ctx, req)

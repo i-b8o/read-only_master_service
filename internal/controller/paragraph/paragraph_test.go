@@ -111,16 +111,14 @@ func TestCreate(t *testing.T) {
 	defer cancel()
 
 	tests := []struct {
-		input  *pb.CreateParagraphsRequest
-		speech [][]string
-		links  [][]entity.Link
-		err    error
+		input *pb.CreateParagraphsRequest
+		links [][]entity.Link
+		err   error
 	}{
 		{
-			input:  &pb.CreateParagraphsRequest{Paragraphs: []*pb.Paragraph{&pb.Paragraph{ParagraphId: 4, ParagraphOrderNum: 4, HasLinks: false, IsTable: false, IsNFT: false, ParagraphClass: "class", ParagraphText: "Содержимое <a id='123'>четвертого <a href='372952/4e92c731969781306ebd1095867d2385f83ac7af/335104'>параграфа</a>", ChapterId: 3}, &pb.Paragraph{ParagraphId: 5, ParagraphOrderNum: 5, HasLinks: true, IsTable: true, IsNFT: true, ParagraphClass: "class", ParagraphText: "Содержимое <a href='418278/61e0f091360ef276b216e99b00e4449169246c5c/338871'>пятого</a> параграфа, с двумя <a href='418278/61e0f091360ef276b216e99b00e4449169246c5c/338871'>ссылками</a> внутри.", ChapterId: 3}}},
-			speech: [][]string{[]string{"Содержимое четвертого параграфа"}, []string{"Содержимое пятого параграфа, с двумя ссылками внутри."}},
-			links:  [][]entity.Link{[]entity.Link{entity.Link{ID: 4, ChapterID: 3, ParagraphNum: 4, RID: 1}, entity.Link{ID: 123, ChapterID: 3, ParagraphNum: 4, RID: 1}}, []entity.Link{entity.Link{ID: 5, ChapterID: 3, ParagraphNum: 5, RID: 1}}},
-			err:    nil,
+			input: &pb.CreateParagraphsRequest{Paragraphs: []*pb.Paragraph{&pb.Paragraph{ParagraphId: 4, ParagraphOrderNum: 4, HasLinks: false, IsTable: false, IsNFT: false, ParagraphClass: "class", ParagraphText: "Содержимое <a id='123'>четвертого <a href='372952/4e92c731969781306ebd1095867d2385f83ac7af/335104'>параграфа</a>", ChapterId: 3}, &pb.Paragraph{ParagraphId: 5, ParagraphOrderNum: 5, HasLinks: true, IsTable: true, IsNFT: true, ParagraphClass: "class", ParagraphText: "Содержимое <a href='418278/61e0f091360ef276b216e99b00e4449169246c5c/338871'>пятого</a> параграфа, с двумя <a href='418278/61e0f091360ef276b216e99b00e4449169246c5c/338871'>ссылками</a> внутри.", ChapterId: 3}}},
+			links: [][]entity.Link{[]entity.Link{entity.Link{ID: 4, ChapterID: 3, ParagraphNum: 4, RID: 1}, entity.Link{ID: 123, ChapterID: 3, ParagraphNum: 4, RID: 1}}, []entity.Link{entity.Link{ID: 5, ChapterID: 3, ParagraphNum: 5, RID: 1}}},
+			err:   nil,
 		},
 	}
 
@@ -152,25 +150,7 @@ func TestCreate(t *testing.T) {
 
 		for i, p := range paragraphs {
 			assert.True(proto.Equal(test.input.Paragraphs[i], p))
-			// speech
-			sql1 := fmt.Sprintf("select content from speech where paragraph_id=%d", p.ParagraphId)
-			rows, err := pgClient.Query(ctx, sql1)
-			if err != nil {
-				t.Log(err)
-			}
-			defer rows.Close()
-			var speechs []string
-			for rows.Next() {
-				var s string
-				if err = rows.Scan(
-					&s,
-				); err != nil {
-					t.Log(err)
-				}
-				speechs = append(speechs, s)
-				log.Print(speechs)
-			}
-			assert.Equal(test.speech[i], speechs)
+
 			// links
 			sql2 := fmt.Sprintf("select id, paragraph_num, c_id, r_id from link where c_id=%d AND paragraph_num=%d", p.ChapterId, p.ParagraphOrderNum)
 			rows, err = pgClient.Query(ctx, sql2)
@@ -198,7 +178,48 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-// TODO GetAll
+func TestGetOne(t *testing.T) {
+	assert := assert.New(t)
+	pgClient := setupDB()
+	defer pgClient.Close()
+	conn, err := grpc.Dial(
+		fmt.Sprintf("%s:%s", "0.0.0.0", "30002"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	client := pb.NewMasterParagraphGRPCClient(conn)
+	defer conn.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	tests := []struct {
+		input    *pb.GetOneParagraphRequest
+		expected *pb.GetOneParagraphResponse
+		err      error
+	}{
+		{
+			input:    &pb.GetOneParagraphRequest{ID: 1},
+			expected: &pb.GetOneParagraphResponse{Content: "Содержимое <a id=\"dst101675\"></a> первого <a href='11111/a3a3a3/111'>параграфа</a>"},
+			err:      nil,
+		},
+	}
+
+	for _, test := range tests {
+		resp, err := client.GetOne(ctx, test.input)
+		if err != nil {
+			t.Log(err)
+		}
+		assert.Equal(test.err, err)
+		assert.True(proto.Equal(test.expected, resp), "expected: ", test.expected, "got", resp)
+
+	}
+	_, err = pgClient.Exec(ctx, resetDB)
+	if err != nil {
+		t.Log(err)
+	}
+}
 
 const resetDB = `
 DROP TABLE IF EXISTS absent_reg;

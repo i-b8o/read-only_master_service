@@ -23,3 +23,8 @@ func ParagraphsFromGetParagraphsWithHrefsResponse(resp *wr_pb.GetParagraphsWithH
 	}
 	return paragraphs
 }
+
+func ParagraphFromGetOneResponse(resp *wr_pb.GetOneParagraphResponse) (paragraphs entity.Paragraph) {
+	paragraph := entity.Paragraph{Content: resp.Content}
+	return paragraph
+}

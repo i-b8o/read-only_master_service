@@ -11,6 +11,7 @@ import (
 type ParagraphService interface {
 	CreateAll(ctx context.Context, paragraphs []entity.Paragraph) error
 	UpdateOne(ctx context.Context, id uint64, content string) error
+	GetOne(ctx context.Context, paragraphId uint64) (entity.Paragraph, error)
 }
 
 type ChapterService interface {
@@ -21,9 +22,10 @@ type LinkService interface {
 	Create(ctx context.Context, link entity.Link) error
 }
 
-type SpeechService interface {
-	Create(ctx context.Context, speech entity.Speech) (string, error)
-}
+// TODO delete
+// type SpeechService interface {
+// 	Create(ctx context.Context, speech entity.Speech) (string, error)
+// }
 
 type paragraphUsecase struct {
 	paragraphService ParagraphService
@@ -37,7 +39,9 @@ func NewParagraphUsecase(paragraphService ParagraphService, chapterService Chapt
 func (u paragraphUsecase) UpdateOne(ctx context.Context, id uint64, content string) error {
 	return u.paragraphService.UpdateOne(ctx, id, content)
 }
-
+func (u paragraphUsecase) GetOne(ctx context.Context, paragraphId uint64) (entity.Paragraph, error) {
+	return u.paragraphService.GetOne(ctx, paragraphId)
+}
 func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []entity.Paragraph) error {
 	if len(paragraphs) == 0 {
 		return nil
@@ -51,7 +55,7 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 	for _, p := range paragraphs {
 		if p.ID > 0 { // sometimes any paragraph can be without an id and no one will link to it
 			u.linkService.Create(ctx, entity.Link{ID: p.ID, ParagraphNum: p.Num, ChapterID: p.ChapterID, RID: rId})
-
+			// TODO delete
 			// speechTextSlice, err := speech.CreateSpeechText(p.Content, 255, 40)
 			// if err != nil {
 			// 	return err

@@ -76,6 +76,12 @@ github.com/i-b8o/read-only_contracts v0.0.0-20221205082043-017b9096c2d9 h1:tvu9a
 github.com/i-b8o/read-only_contracts v0.0.0-20221205082043-017b9096c2d9/go.mod h1:+xArhQldMdQb+B4l1IFwRUmJNoTT1zJ4cx9vI765Qcc=
 github.com/i-b8o/read-only_contracts v0.0.0-20221205124016-70100563b393 h1:tupniGvBgSBX6jeHoHY3Ai3mG3BL4EpwqopRcHFXjXo=
 github.com/i-b8o/read-only_contracts v0.0.0-20221205124016-70100563b393/go.mod h1:+xArhQldMdQb+B4l1IFwRUmJNoTT1zJ4cx9vI765Qcc=
+github.com/i-b8o/read-only_contracts v0.0.0-20221207070905-392b4d545f3d h1:4OYRcfIzx4DnjJSAZIUnb34lixWTC4gtusK+mD3olTw=
+github.com/i-b8o/read-only_contracts v0.0.0-20221207070905-392b4d545f3d/go.mod h1:+xArhQldMdQb+B4l1IFwRUmJNoTT1zJ4cx9vI765Qcc=
+github.com/i-b8o/read-only_contracts v0.0.0-20221207071453-7efdd47b9849 h1:F5S7S4p5YAE8lL3e+Hp2EJQbo5actMuACV6oJUIBqi4=
+github.com/i-b8o/read-only_contracts v0.0.0-20221207071453-7efdd47b9849/go.mod h1:+xArhQldMdQb+B4l1IFwRUmJNoTT1zJ4cx9vI765Qcc=
+github.com/i-b8o/read-only_contracts v0.0.0-20221207073831-ede450d11962 h1:hyOkij0ku3GweoBF1E40N8tb+5YVOmT+WiUSCcpXDRI=
+github.com/i-b8o/read-only_contracts v0.0.0-20221207073831-ede450d11962/go.mod h1:+xArhQldMdQb+B4l1IFwRUmJNoTT1zJ4cx9vI765Qcc=
 github.com/ilyakaznacheev/cleanenv v1.4.1 h1:zroQjmb8e3w6DBcgbgFXtlQTX8xP8XCOg1etuYv4hX0=
 github.com/ilyakaznacheev/cleanenv v1.4.1/go.mod h1:i0owW+HDxeGKE0/JPREJOdSCPIyOnmh6C0xhWAkF/xA=
 github.com/jackc/chunkreader v1.0.0 h1:4s39bBR8ByfqH+DKm8rQA3E1LHZWB9XWcrz8fqaZbe0=
