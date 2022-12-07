@@ -3,7 +3,6 @@ package usecase_paragraph
 import (
 	"context"
 	"read-only_master_service/internal/domain/entity"
-	speech "read-only_master_service/pkg/speech"
 	"regexp"
 	"strconv"
 	"strings"
@@ -30,11 +29,10 @@ type paragraphUsecase struct {
 	paragraphService ParagraphService
 	chapterService   ChapterService
 	linkService      LinkService
-	speechService    SpeechService
 }
 
-func NewParagraphUsecase(paragraphService ParagraphService, chapterService ChapterService, linkService LinkService, speechService SpeechService) *paragraphUsecase {
-	return &paragraphUsecase{paragraphService: paragraphService, chapterService: chapterService, linkService: linkService, speechService: speechService}
+func NewParagraphUsecase(paragraphService ParagraphService, chapterService ChapterService, linkService LinkService) *paragraphUsecase {
+	return &paragraphUsecase{paragraphService: paragraphService, chapterService: chapterService, linkService: linkService}
 }
 func (u paragraphUsecase) UpdateOne(ctx context.Context, id uint64, content string) error {
 	return u.paragraphService.UpdateOne(ctx, id, content)
@@ -49,22 +47,22 @@ func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []ent
 	if err != nil {
 		return err
 	}
-	// create links and speechs for paragraphs
+	// create links for paragraphs
 	for _, p := range paragraphs {
 		if p.ID > 0 { // sometimes any paragraph can be without an id and no one will link to it
 			u.linkService.Create(ctx, entity.Link{ID: p.ID, ParagraphNum: p.Num, ChapterID: p.ChapterID, RID: rId})
 
-			speechTextSlice, err := speech.CreateSpeechText(p.Content, 255, 40)
-			if err != nil {
-				return err
-			}
-			for i, text := range speechTextSlice {
-				speech := entity.Speech{ParagraphID: p.ID, Content: text, OrderNum: uint64(i)}
-				_, err := u.speechService.Create(ctx, speech)
-				if err != nil {
-					return err
-				}
-			}
+			// speechTextSlice, err := speech.CreateSpeechText(p.Content, 255, 40)
+			// if err != nil {
+			// 	return err
+			// }
+			// for i, text := range speechTextSlice {
+			// 	speech := entity.Speech{ParagraphID: p.ID, Content: text, OrderNum: uint64(i)}
+			// 	_, err := u.speechService.Create(ctx, speech)
+			// 	if err != nil {
+			// 		return err
+			// 	}
+			// }
 		}
 
 		// when the paragraph has additional IDs inside itself we need to create for them additional links
