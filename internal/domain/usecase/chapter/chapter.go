@@ -11,10 +11,6 @@ type ChapterService interface {
 	Create(ctx context.Context, chapter entity.Chapter) (uint64, error)
 }
 
-type LinkService interface {
-	CreateForChapter(ctx context.Context, link entity.Link) error
-}
-
 type PseudoChapter interface {
 	CreateRelationship(ctx context.Context, pseudoChapter entity.PseudoChapter) error
 	DeleteRelationship(ctx context.Context, chapterID uint64) error
@@ -22,13 +18,13 @@ type PseudoChapter interface {
 
 type chapterUsecase struct {
 	chapterService ChapterService
-	linkService    LinkService
-	pseudoChapter  PseudoChapter
-	logging        logging.Logger
+
+	pseudoChapter PseudoChapter
+	logging       logging.Logger
 }
 
-func NewChapterUsecase(chapterService ChapterService, linkService LinkService, pseudoChapter PseudoChapter, logging logging.Logger) *chapterUsecase {
-	return &chapterUsecase{chapterService: chapterService, pseudoChapter: pseudoChapter, linkService: linkService, logging: logging}
+func NewChapterUsecase(chapterService ChapterService, pseudoChapter PseudoChapter, logging logging.Logger) *chapterUsecase {
+	return &chapterUsecase{chapterService: chapterService, pseudoChapter: pseudoChapter, logging: logging}
 }
 
 func (u chapterUsecase) CreateChapter(ctx context.Context, chapter entity.Chapter) (uint64, error) {
@@ -37,15 +33,6 @@ func (u chapterUsecase) CreateChapter(ctx context.Context, chapter entity.Chapte
 	if err != nil {
 		u.logging.Error(err)
 		return 0, err
-	}
-
-	// create a link for the chapter
-	if chapter.ID > 0 { // sometimes any chapter can be without an id and no one will link to it
-		err = u.linkService.CreateForChapter(ctx, entity.Link{ID: chapter.ID, ParagraphNum: 0, ChapterID: ID, RID: chapter.RegulationID})
-		if err != nil {
-			u.logging.Error(err)
-			return 0, err
-		}
 	}
 
 	// create an id-pseudoId relationship

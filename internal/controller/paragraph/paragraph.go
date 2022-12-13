@@ -39,7 +39,6 @@ func (s *ParagraphGrpcController) GetOne(ctx context.Context, req *pb.GetOnePara
 
 func (s *ParagraphGrpcController) Create(ctx context.Context, req *pb.CreateParagraphsRequest) (*pb.Empty, error) {
 	paragraphs := controller_dto.ParagraphsFromCreateParagraphsRequest(req)
-	// cretae paragraphs, create links and speechs for paragraphs
 	err := s.paragraphUsecase.CreateParagraphs(ctx, paragraphs)
 	if err != nil {
 		return nil, err

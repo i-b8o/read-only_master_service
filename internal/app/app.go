@@ -61,8 +61,6 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	paragraphGrpcClient := wr_pb.NewWriterParagraphGRPCClient(conn)
 
 	absentAdapter := postgressql.NewAbsentStorage(pgClient)
-	linkAdapter := postgressql.NewLinkStorage(pgClient)
-	// speechAdapter := postgressql.NewSpeechStorage(pgClient)
 
 	regulationAdapter := grpc_provider.NewRegulationStorage(regulationGrpcClient)
 	chapterAdapter := grpc_provider.NewChapterStorage(chapterGrpcClient)
@@ -76,12 +74,10 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	pseudoRegulationService := service.NewPseudoRegulationService(pseudoRegulationAdapter)
 	pseudoChapterService := service.NewPseudoChapterService(pseudoChapterAdapter)
 	paragraphService := service.NewParagraphService(paragraphAdapter)
-	linkService := service.NewLinkService(linkAdapter)
-	// speechService := service.NewSpeechService(speechAdapter)
 
 	regulationUsecase := regulation_usecase.NewRegulationUsecase(regulationService, chapterService, paragraphService, absentService, pseudoRegulationService, pseudoChapterAdapter, logger)
-	chapterUsecase := usecase_chapter.NewChapterUsecase(chapterService, linkService, pseudoChapterService, logger)
-	paragraphUsecase := usecase_paragraph.NewParagraphUsecase(paragraphService, chapterService, linkService)
+	chapterUsecase := usecase_chapter.NewChapterUsecase(chapterService, pseudoChapterService, logger)
+	paragraphUsecase := usecase_paragraph.NewParagraphUsecase(paragraphService, chapterService)
 
 	grpcServer := grpc.NewServer()
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"read-only_master_service/internal/domain/entity"
 	"read-only_master_service/pkg/client/postgresql"
 	"testing"
 	"time"
@@ -112,12 +111,10 @@ func TestCreate(t *testing.T) {
 
 	tests := []struct {
 		input *pb.CreateParagraphsRequest
-		links [][]entity.Link
 		err   error
 	}{
 		{
 			input: &pb.CreateParagraphsRequest{Paragraphs: []*pb.Paragraph{&pb.Paragraph{ParagraphId: 4, ParagraphOrderNum: 4, HasLinks: false, IsTable: false, IsNFT: false, ParagraphClass: "class", ParagraphText: "Содержимое <a id='123'>четвертого <a href='372952/4e92c731969781306ebd1095867d2385f83ac7af/335104'>параграфа</a>", ChapterId: 3}, &pb.Paragraph{ParagraphId: 5, ParagraphOrderNum: 5, HasLinks: true, IsTable: true, IsNFT: true, ParagraphClass: "class", ParagraphText: "Содержимое <a href='418278/61e0f091360ef276b216e99b00e4449169246c5c/338871'>пятого</a> параграфа, с двумя <a href='418278/61e0f091360ef276b216e99b00e4449169246c5c/338871'>ссылками</a> внутри.", ChapterId: 3}}},
-			links: [][]entity.Link{[]entity.Link{entity.Link{ID: 4, ChapterID: 3, ParagraphNum: 4, RID: 1}, entity.Link{ID: 123, ChapterID: 3, ParagraphNum: 4, RID: 1}}, []entity.Link{entity.Link{ID: 5, ChapterID: 3, ParagraphNum: 5, RID: 1}}},
 			err:   nil,
 		},
 	}
@@ -146,29 +143,6 @@ func TestCreate(t *testing.T) {
 				t.Log(err)
 			}
 			paragraphs = append(paragraphs, &p)
-		}
-
-		for i, p := range paragraphs {
-			assert.True(proto.Equal(test.input.Paragraphs[i], p))
-
-			// links
-			sql2 := fmt.Sprintf("select id, paragraph_num, c_id, r_id from link where c_id=%d AND paragraph_num=%d", p.ChapterId, p.ParagraphOrderNum)
-			rows, err = pgClient.Query(ctx, sql2)
-			if err != nil {
-				t.Log(err)
-			}
-			defer rows.Close()
-			var links []entity.Link
-			for rows.Next() {
-				var l entity.Link
-				if err = rows.Scan(
-					&l.ID, &l.ParagraphNum, &l.ChapterID, &l.RID,
-				); err != nil {
-					t.Log(err)
-				}
-				links = append(links, l)
-			}
-			assert.Equal(test.links[i], links)
 		}
 
 	}
