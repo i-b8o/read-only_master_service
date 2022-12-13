@@ -7,12 +7,12 @@ import (
 
 	"time"
 
-	postgressql "read-only_master_service/internal/adapters/db/postgresql"
-	grpc_adapter "read-only_master_service/internal/adapters/grpc/v1"
 	"read-only_master_service/internal/config"
 	chapter_controller "read-only_master_service/internal/controller/chapter"
 	paragraph_controller "read-only_master_service/internal/controller/paragraph"
 	regulation_controller "read-only_master_service/internal/controller/regulation"
+	postgressql "read-only_master_service/internal/data_providers/db/postgresql"
+	grpc_provider "read-only_master_service/internal/data_providers/grpc/v1"
 	"read-only_master_service/internal/domain/service"
 	usecase_chapter "read-only_master_service/internal/domain/usecase/chapter"
 	usecase_paragraph "read-only_master_service/internal/domain/usecase/paragraph"
@@ -64,11 +64,11 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	linkAdapter := postgressql.NewLinkStorage(pgClient)
 	// speechAdapter := postgressql.NewSpeechStorage(pgClient)
 
-	regulationAdapter := grpc_adapter.NewRegulationStorage(regulationGrpcClient)
-	chapterAdapter := grpc_adapter.NewChapterStorage(chapterGrpcClient)
+	regulationAdapter := grpc_provider.NewRegulationStorage(regulationGrpcClient)
+	chapterAdapter := grpc_provider.NewChapterStorage(chapterGrpcClient)
 	pseudoRegulationAdapter := postgressql.NewPseudoRegulationStorage(pgClient)
 	pseudoChapterAdapter := postgressql.NewPseudoChapterStorage(pgClient)
-	paragraphAdapter := grpc_adapter.NewParagraphStorage(paragraphGrpcClient)
+	paragraphAdapter := grpc_provider.NewParagraphStorage(paragraphGrpcClient)
 
 	regulationService := service.NewRegulationService(regulationAdapter)
 	chapterService := service.NewChapterService(chapterAdapter)

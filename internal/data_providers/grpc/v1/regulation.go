@@ -3,7 +3,7 @@ package grpc_adapter
 import (
 	"context"
 	"fmt"
-	"read-only_master_service/internal/adapters/grpc/v1/dto"
+	"read-only_master_service/internal/data_providers/grpc/v1/dto"
 	"read-only_master_service/internal/domain/entity"
 
 	wr_pb "github.com/i-b8o/read-only_contracts/pb/writer/v1"
