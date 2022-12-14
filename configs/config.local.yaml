@@ -14,7 +14,7 @@ writer:
 
 postgresql:
   host: 0.0.0.0
-  port: "5436"
-  username: reader
-  database: reader
-  password: postgres
+  port: "5438"
+  username: master_user
+  database: master_db
+  password: 031501
