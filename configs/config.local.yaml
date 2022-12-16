@@ -9,12 +9,12 @@ grpc:
   port: 30002
 
 writer:
-  ip: 0.0.0.0
+  ip: 134.0.115.63
   port: 30001
 
 postgresql:
   host: 0.0.0.0
-  port: "5438"
+  port: "5432"
   username: master_user
   database: master_db
   password: 031501
