@@ -19,7 +19,7 @@ func NewRegulationStorage(client wr_pb.WriterRegulationGRPCClient) *regulationSt
 
 func (rs *regulationStorage) Create(ctx context.Context, regulation entity.Regulation) (uint64, error) {
 	// Mapping
-	req := &wr_pb.CreateRegulationRequest{Name: regulation.Name, Abbreviation: regulation.Abbreviation, Title: regulation.Title}
+	req := &wr_pb.CreateRegulationRequest{Name: regulation.Name, Abbreviation: regulation.Abbreviation, Title: *regulation.Title}
 	resp, err := rs.client.Create(ctx, req)
 	if err != nil {
 		return 0, err

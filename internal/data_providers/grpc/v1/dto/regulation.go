@@ -8,7 +8,7 @@ import (
 
 func CreateRegulationsFromGetRegulationsResponse(resp *wr_pb.GetRegulationsResponse) (regulations []entity.Regulation) {
 	for _, r := range resp.Regulations {
-		regulation := entity.Regulation{Id: r.ID, Name: r.Name, Abbreviation: r.Abbreviation, Title: r.Title}
+		regulation := entity.Regulation{Id: r.ID, Name: r.Name, Abbreviation: r.Abbreviation, Title: &r.Title}
 		regulations = append(regulations, regulation)
 	}
 	return regulations

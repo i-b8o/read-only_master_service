@@ -2,14 +2,14 @@ package chapter_controller
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
-	"read-only_master_service/pkg/client/postgresql"
+	"read-only_master_service/pkg/client/sqlite"
 	"testing"
-	"time"
 
 	pb "github.com/i-b8o/read-only_contracts/pb/master/v1"
-	"github.com/jackc/pgx/v4/pgxpool"
+
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -17,20 +17,15 @@ import (
 )
 
 const (
-	dbHost     = "0.0.0.0"
-	dbPort     = "5436"
-	dbUser     = "reader"
-	dbPassword = "postgres"
-	dbName     = "reader"
+	dbPath = ""
 )
 
-func setupDB() *pgxpool.Pool {
-	pgConfig := postgresql.NewPgConfig(
-		dbUser, dbPassword,
-		dbHost, dbPort, dbName,
+func setupDB() *sql.DB {
+	sqliteConfig := sqlite.NewSqliteConfig(
+		dbPath,
 	)
 
-	pgClient, err := postgresql.NewClient(context.Background(), 5, time.Second*5, pgConfig)
+	pgClient, err := sqlite.NewClient(sqliteConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -75,7 +70,7 @@ func TestCreate(t *testing.T) {
 
 		// regulation
 		sql := "select id, name, order_num, num, r_id from chapter where id=4"
-		rows, err := pgClient.Query(ctx, sql)
+		rows, err := pgClient.Query(sql)
 		if err != nil {
 			t.Log(err)
 		}
@@ -100,7 +95,7 @@ func TestCreate(t *testing.T) {
 
 		// pseudo chapter
 		sqlP := fmt.Sprintf("select * from pseudo_chapter where c_id=%d", resp.ID)
-		rows, err = pgClient.Query(ctx, sqlP)
+		rows, err = pgClient.Query(sqlP)
 		if err != nil {
 			t.Log(err)
 		}
@@ -119,7 +114,7 @@ func TestCreate(t *testing.T) {
 		assert.Equal(resp.ID, cId)
 		assert.Equal(test.input.PseudoId, pseudo)
 	}
-	_, err = pgClient.Exec(ctx, resetDB)
+	_, err = pgClient.Exec(resetDB)
 	if err != nil {
 		t.Log(err)
 	}

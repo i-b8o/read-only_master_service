@@ -92,6 +92,7 @@ func (u regulationUsecase) GetAbsents(ctx context.Context) ([]*entity.Absent, er
 
 	return absents, nil
 }
+
 func (u regulationUsecase) DeleteRegulation(ctx context.Context, ID uint64) error {
 	// delete a regulation
 	err := u.regulationService.Delete(ctx, ID)
@@ -128,7 +129,7 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 
 			// get links
 			content := paragraph.Content
-			re := regexp.MustCompile("<a href='.+'>")
+			re := regexp.MustCompile("<a href='.+?'>")
 			links := re.FindAllString(content, -1)
 
 			for _, aLink := range links {
@@ -190,7 +191,7 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 					return err
 				}
 
-				post := fmt.Sprintf("%d/%d/%s'>", regulationID, chapterID, pID)
+				post := fmt.Sprintf("%d#%s'>", chapterID, pID)
 				content = strings.Replace(content, aLink, "<a href='"+post, 1)
 			}
 

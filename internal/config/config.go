@@ -21,13 +21,9 @@ type Config struct {
 	AppConfig struct {
 		LogLevel string `yaml:"log-level" env:"LOG_LEVEL" env-default:"trace"`
 	} `yaml:"app"`
-	PostgreSQL struct {
-		Username string `yaml:"username" env:"POSTGRES_USER" env-required:"true"`
-		Password string `yaml:"password" env:"POSTGRES_PASSWORD" env-required:"true"`
-		Host     string `yaml:"host" env:"POSTGRES_HOST" env-required:"true"`
-		Port     string `yaml:"port" env:"POSTGRES_PORT" env-required:"true"`
-		Database string `yaml:"database" env:"POSTGRES_DB" env-required:"true"`
-	} `yaml:"postgresql"`
+	SQLite struct {
+		DBPath string `yaml:"db_path" env:"DB_PATH" env-required:"true"`
+	} `yaml:"sqlite"`
 }
 
 const (
@@ -41,7 +37,7 @@ var once sync.Once
 
 func GetConfig() *Config {
 	once.Do(func() {
-		flag.StringVar(&configPath, FlagConfigPathName, "configs/config.local.yaml", "this is app config file")
+		flag.StringVar(&configPath, FlagConfigPathName, ".configs/config.local.yaml", "this is app config file")
 		flag.Parse()
 
 		log.Print("config init")
@@ -55,8 +51,6 @@ func GetConfig() *Config {
 		}
 
 		instance = &Config{}
-
-		instance.PostgreSQL.Password = os.Getenv("DB_PASSWORD")
 
 		if err := cleanenv.ReadConfig(configPath, instance); err != nil {
 			helpText := "Read Only"

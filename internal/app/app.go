@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"net"
 
-	"time"
-
 	"read-only_master_service/internal/config"
 	chapter_controller "read-only_master_service/internal/controller/chapter"
 	paragraph_controller "read-only_master_service/internal/controller/paragraph"
 	regulation_controller "read-only_master_service/internal/controller/regulation"
-	postgressql "read-only_master_service/internal/data_providers/db/postgresql"
+	sqlite_provider "read-only_master_service/internal/data_providers/db/sqlite"
 	grpc_provider "read-only_master_service/internal/data_providers/grpc/v1"
 	"read-only_master_service/internal/domain/service"
 	usecase_chapter "read-only_master_service/internal/domain/usecase/chapter"
@@ -23,7 +21,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"read-only_master_service/pkg/client/postgresql"
+	"read-only_master_service/pkg/client/sqlite"
 
 	"github.com/i-b8o/logging"
 	"google.golang.org/grpc"
@@ -39,12 +37,11 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	logger := logging.GetLogger(config.AppConfig.LogLevel)
 
 	logger.Print("Postgres initializing")
-	pgConfig := postgresql.NewPgConfig(
-		config.PostgreSQL.Username, config.PostgreSQL.Password,
-		config.PostgreSQL.Host, config.PostgreSQL.Port, config.PostgreSQL.Database,
+	sqlConfig := sqlite.NewSqliteConfig(
+		config.SQLite.DBPath,
 	)
 
-	pgClient, err := postgresql.NewClient(context.Background(), 5, time.Second*5, pgConfig)
+	sqliteClient, err := sqlite.NewClient(sqlConfig)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -60,22 +57,21 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	chapterGrpcClient := wr_pb.NewWriterChapterGRPCClient(conn)
 	paragraphGrpcClient := wr_pb.NewWriterParagraphGRPCClient(conn)
 
-	absentAdapter := postgressql.NewAbsentStorage(pgClient)
+	absentProvider := sqlite_provider.NewAbsentStorage(sqliteClient)
+	regulationProvider := grpc_provider.NewRegulationStorage(regulationGrpcClient)
+	chapterProvider := grpc_provider.NewChapterStorage(chapterGrpcClient)
+	pseudoRegulationProvider := sqlite_provider.NewPseudoRegulationStorage(sqliteClient)
+	pseudoChapterProvider := sqlite_provider.NewPseudoChapterStorage(sqliteClient)
+	paragraphProvider := grpc_provider.NewParagraphStorage(paragraphGrpcClient)
 
-	regulationAdapter := grpc_provider.NewRegulationStorage(regulationGrpcClient)
-	chapterAdapter := grpc_provider.NewChapterStorage(chapterGrpcClient)
-	pseudoRegulationAdapter := postgressql.NewPseudoRegulationStorage(pgClient)
-	pseudoChapterAdapter := postgressql.NewPseudoChapterStorage(pgClient)
-	paragraphAdapter := grpc_provider.NewParagraphStorage(paragraphGrpcClient)
+	regulationService := service.NewRegulationService(regulationProvider)
+	chapterService := service.NewChapterService(chapterProvider)
+	absentService := service.NewAbsentService(absentProvider)
+	pseudoRegulationService := service.NewPseudoRegulationService(pseudoRegulationProvider)
+	pseudoChapterService := service.NewPseudoChapterService(pseudoChapterProvider)
+	paragraphService := service.NewParagraphService(paragraphProvider)
 
-	regulationService := service.NewRegulationService(regulationAdapter)
-	chapterService := service.NewChapterService(chapterAdapter)
-	absentService := service.NewAbsentService(absentAdapter)
-	pseudoRegulationService := service.NewPseudoRegulationService(pseudoRegulationAdapter)
-	pseudoChapterService := service.NewPseudoChapterService(pseudoChapterAdapter)
-	paragraphService := service.NewParagraphService(paragraphAdapter)
-
-	regulationUsecase := regulation_usecase.NewRegulationUsecase(regulationService, chapterService, paragraphService, absentService, pseudoRegulationService, pseudoChapterAdapter, logger)
+	regulationUsecase := regulation_usecase.NewRegulationUsecase(regulationService, chapterService, paragraphService, absentService, pseudoRegulationService, pseudoChapterProvider, logger)
 	chapterUsecase := usecase_chapter.NewChapterUsecase(chapterService, pseudoChapterService, logger)
 	paragraphUsecase := usecase_paragraph.NewParagraphUsecase(paragraphService, chapterService)
 
