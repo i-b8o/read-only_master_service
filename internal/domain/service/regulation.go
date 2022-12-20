@@ -5,28 +5,28 @@ import (
 	"read-only_master_service/internal/domain/entity"
 )
 
-type RegulationStorage interface {
-	GetAll(ctx context.Context) ([]entity.Regulation, error)
-	Create(ctx context.Context, regulation entity.Regulation) (uint64, error)
-	Delete(ctx context.Context, regulationID uint64) error
+type DocStorage interface {
+	GetAll(ctx context.Context) ([]entity.Doc, error)
+	Create(ctx context.Context, doc entity.Doc) (uint64, error)
+	Delete(ctx context.Context, docID uint64) error
 }
 
-type regulationService struct {
-	storage RegulationStorage
+type docService struct {
+	storage DocStorage
 }
 
-func NewRegulationService(storage RegulationStorage) *regulationService {
-	return &regulationService{storage: storage}
+func NewDocService(storage DocStorage) *docService {
+	return &docService{storage: storage}
 }
 
-func (s *regulationService) Create(ctx context.Context, regulation entity.Regulation) (uint64, error) {
-	return s.storage.Create(ctx, regulation)
+func (s *docService) Create(ctx context.Context, doc entity.Doc) (uint64, error) {
+	return s.storage.Create(ctx, doc)
 }
 
-func (s *regulationService) Delete(ctx context.Context, regulationId uint64) error {
-	return s.storage.Delete(ctx, regulationId)
+func (s *docService) Delete(ctx context.Context, docId uint64) error {
+	return s.storage.Delete(ctx, docId)
 }
 
-func (s *regulationService) GetAll(ctx context.Context) ([]entity.Regulation, error) {
+func (s *docService) GetAll(ctx context.Context) ([]entity.Doc, error) {
 	return s.storage.GetAll(ctx)
 }

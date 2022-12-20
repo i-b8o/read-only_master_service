@@ -1,4 +1,4 @@
-package regulation_dto
+package doc_dto
 
 import (
 	"read-only_master_service/internal/domain/entity"
@@ -6,21 +6,21 @@ import (
 	pb "github.com/i-b8o/read-only_contracts/pb/master/v1"
 )
 
-func RegulationFromCreateRegulationRequest(req *pb.CreateRegulationRequest) entity.Regulation {
-	return entity.Regulation{
-		Name:         req.RegulationName,
+func DocFromCreateDocRequest(req *pb.CreateDocRequest) entity.Doc {
+	return entity.Doc{
+		Name:         req.DocName,
 		Pseudo:       req.PseudoId,
 		Abbreviation: req.Abbreviation,
 		Title:        &req.Title,
 	}
 }
 
-func RegulationsFromRegulations(domainRegulations []entity.Regulation) (regulations []*pb.Regulation) {
-	for _, r := range domainRegulations {
-		regulation := pb.Regulation{ID: r.Id, RegulationName: r.Name, Abbreviation: r.Abbreviation, Title: *r.Title}
-		regulations = append(regulations, &regulation)
+func DocsFromDocs(domainDocs []entity.Doc) (docs []*pb.Doc) {
+	for _, r := range domainDocs {
+		doc := pb.Doc{ID: r.Id, DocName: r.Name, Abbreviation: r.Abbreviation, Title: *r.Title}
+		docs = append(docs, &doc)
 	}
-	return regulations
+	return docs
 }
 
 func GetAbsentsResponseFromAbsents(domainAbsents []*entity.Absent) (response *pb.GetAbsentsResponse) {

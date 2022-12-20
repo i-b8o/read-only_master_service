@@ -9,17 +9,17 @@ import (
 	wr_pb "github.com/i-b8o/read-only_contracts/pb/writer/v1"
 )
 
-type regulationStorage struct {
-	client wr_pb.WriterRegulationGRPCClient
+type docStorage struct {
+	client wr_pb.WriterDocGRPCClient
 }
 
-func NewRegulationStorage(client wr_pb.WriterRegulationGRPCClient) *regulationStorage {
-	return &regulationStorage{client: client}
+func NewDocStorage(client wr_pb.WriterDocGRPCClient) *docStorage {
+	return &docStorage{client: client}
 }
 
-func (rs *regulationStorage) Create(ctx context.Context, regulation entity.Regulation) (uint64, error) {
+func (rs *docStorage) Create(ctx context.Context, doc entity.Doc) (uint64, error) {
 	// Mapping
-	req := &wr_pb.CreateRegulationRequest{Name: regulation.Name, Abbreviation: regulation.Abbreviation, Title: *regulation.Title}
+	req := &wr_pb.CreateDocRequest{Name: doc.Name, Abbreviation: doc.Abbreviation, Title: *doc.Title}
 	resp, err := rs.client.Create(ctx, req)
 	if err != nil {
 		return 0, err
@@ -27,17 +27,17 @@ func (rs *regulationStorage) Create(ctx context.Context, regulation entity.Regul
 	return resp.ID, err
 }
 
-func (rs *regulationStorage) Delete(ctx context.Context, regulationID uint64) error {
-	req := &wr_pb.DeleteRegulationRequest{ID: regulationID}
+func (rs *docStorage) Delete(ctx context.Context, docID uint64) error {
+	req := &wr_pb.DeleteDocRequest{ID: docID}
 	_, err := rs.client.Delete(ctx, req)
 	return err
 }
 
-func (rs *regulationStorage) GetAll(ctx context.Context) ([]entity.Regulation, error) {
+func (rs *docStorage) GetAll(ctx context.Context) ([]entity.Doc, error) {
 	resp, err := rs.client.GetAll(ctx, &wr_pb.Empty{})
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(resp.Regulations)
-	return dto.CreateRegulationsFromGetRegulationsResponse(resp), nil
+	fmt.Println(resp.Docs)
+	return dto.CreateDocsFromGetDocsResponse(resp), nil
 }

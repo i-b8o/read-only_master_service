@@ -5,28 +5,28 @@ import (
 	"read-only_master_service/internal/domain/entity"
 )
 
-type PseudoRegulationStorage interface {
-	CreateRelationship(ctx context.Context, pseudoRegulation entity.PseudoRegulation) error
-	DeleteRelationship(ctx context.Context, regulationID uint64) error
+type PseudoDocStorage interface {
+	CreateRelationship(ctx context.Context, pseudoDoc entity.PseudoDoc) error
+	DeleteRelationship(ctx context.Context, docID uint64) error
 	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
 }
 
-type pseudoRegulationService struct {
-	storage PseudoRegulationStorage
+type pseudoDocService struct {
+	storage PseudoDocStorage
 }
 
-func NewPseudoRegulationService(storage PseudoRegulationStorage) *pseudoRegulationService {
-	return &pseudoRegulationService{storage: storage}
+func NewPseudoDocService(storage PseudoDocStorage) *pseudoDocService {
+	return &pseudoDocService{storage: storage}
 }
 
-func (prs pseudoRegulationService) CreateRelationship(ctx context.Context, pseudoRegulation entity.PseudoRegulation) error {
-	return prs.storage.CreateRelationship(ctx, pseudoRegulation)
+func (prs pseudoDocService) CreateRelationship(ctx context.Context, pseudoDoc entity.PseudoDoc) error {
+	return prs.storage.CreateRelationship(ctx, pseudoDoc)
 }
 
-func (prs pseudoRegulationService) DeleteRelationship(ctx context.Context, regulationID uint64) error {
-	return prs.storage.DeleteRelationship(ctx, regulationID)
+func (prs pseudoDocService) DeleteRelationship(ctx context.Context, docID uint64) error {
+	return prs.storage.DeleteRelationship(ctx, docID)
 }
 
-func (prs pseudoRegulationService) GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error) {
+func (prs pseudoDocService) GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error) {
 	return prs.storage.GetIDByPseudo(ctx, pseudoId)
 }

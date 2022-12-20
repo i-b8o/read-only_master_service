@@ -1,6 +1,6 @@
 package entity
 
-type PseudoRegulation struct {
+type PseudoDoc struct {
 	ID       uint64
 	PseudoId string
 }

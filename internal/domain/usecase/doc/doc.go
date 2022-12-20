@@ -1,4 +1,4 @@
-package usecase_regulation
+package usecase_doc
 
 import (
 	"context"
@@ -10,10 +10,10 @@ import (
 	"github.com/i-b8o/logging"
 )
 
-type RegulationService interface {
-	GetAll(ctx context.Context) ([]entity.Regulation, error)
-	Create(ctx context.Context, regulation entity.Regulation) (uint64, error)
-	Delete(ctx context.Context, regulationId uint64) error
+type DocService interface {
+	GetAll(ctx context.Context) ([]entity.Doc, error)
+	Create(ctx context.Context, doc entity.Doc) (uint64, error)
+	Delete(ctx context.Context, docId uint64) error
 }
 
 type ChapterService interface {
@@ -30,9 +30,9 @@ type AbsentService interface {
 	GetAll(ctx context.Context) ([]*entity.Absent, error)
 }
 
-type PseudoRegulationService interface {
-	CreateRelationship(ctx context.Context, pseudoRegulation entity.PseudoRegulation) error
-	DeleteRelationship(ctx context.Context, regulationID uint64) error
+type PseudoDocService interface {
+	CreateRelationship(ctx context.Context, pseudoDoc entity.PseudoDoc) error
+	DeleteRelationship(ctx context.Context, docID uint64) error
 	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
 }
 
@@ -40,41 +40,41 @@ type PseudoChapterService interface {
 	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
 }
 
-type regulationUsecase struct {
-	regulationService       RegulationService
-	chapterService          ChapterService
-	paragraphService        ParagraphService
-	absentService           AbsentService
-	pseudoRegulationService PseudoRegulationService
-	pseudoChapterService    PseudoChapterService
-	logging                 logging.Logger
+type docUsecase struct {
+	docService           DocService
+	chapterService       ChapterService
+	paragraphService     ParagraphService
+	absentService        AbsentService
+	pseudoDocService     PseudoDocService
+	pseudoChapterService PseudoChapterService
+	logging              logging.Logger
 }
 
-func NewRegulationUsecase(regulationService RegulationService, chapterService ChapterService, paragraphService ParagraphService, absentService AbsentService, pseudoRegulationService PseudoRegulationService, pseudoChapterService PseudoChapterService, logging logging.Logger) *regulationUsecase {
-	return &regulationUsecase{regulationService: regulationService, chapterService: chapterService, paragraphService: paragraphService, absentService: absentService, pseudoRegulationService: pseudoRegulationService, pseudoChapterService: pseudoChapterService, logging: logging}
+func NewDocUsecase(docService DocService, chapterService ChapterService, paragraphService ParagraphService, absentService AbsentService, pseudoDocService PseudoDocService, pseudoChapterService PseudoChapterService, logging logging.Logger) *docUsecase {
+	return &docUsecase{docService: docService, chapterService: chapterService, paragraphService: paragraphService, absentService: absentService, pseudoDocService: pseudoDocService, pseudoChapterService: pseudoChapterService, logging: logging}
 }
 
-func (u regulationUsecase) GetAll(ctx context.Context) ([]entity.Regulation, error) {
-	return u.regulationService.GetAll(ctx)
+func (u docUsecase) GetAll(ctx context.Context) ([]entity.Doc, error) {
+	return u.docService.GetAll(ctx)
 }
 
-func (u regulationUsecase) CreateRegulation(ctx context.Context, regulation entity.Regulation) (uint64, error) {
-	// create a regulation
-	ID, err := u.regulationService.Create(ctx, regulation)
+func (u docUsecase) CreateDoc(ctx context.Context, doc entity.Doc) (uint64, error) {
+	// create a doc
+	ID, err := u.docService.Create(ctx, doc)
 	if err != nil {
 		u.logging.Error(err)
 		return 0, err
 	}
 
 	// create an id-pseudoId relationship
-	err = u.pseudoRegulationService.CreateRelationship(ctx, entity.PseudoRegulation{ID: ID, PseudoId: regulation.Pseudo})
+	err = u.pseudoDocService.CreateRelationship(ctx, entity.PseudoDoc{ID: ID, PseudoId: doc.Pseudo})
 	if err != nil {
 		u.logging.Error(err)
 		return 0, err
 	}
 
-	// mark the regulation as done
-	err = u.absentService.Done(ctx, regulation.Pseudo)
+	// mark the doc as done
+	err = u.absentService.Done(ctx, doc.Pseudo)
 	if err != nil {
 		u.logging.Error(err)
 		return 0, err
@@ -83,7 +83,7 @@ func (u regulationUsecase) CreateRegulation(ctx context.Context, regulation enti
 	return ID, nil
 }
 
-func (u regulationUsecase) GetAbsents(ctx context.Context) ([]*entity.Absent, error) {
+func (u docUsecase) GetAbsents(ctx context.Context) ([]*entity.Absent, error) {
 	absents, err := u.absentService.GetAll(ctx)
 	if err != nil {
 		u.logging.Error(err)
@@ -93,15 +93,15 @@ func (u regulationUsecase) GetAbsents(ctx context.Context) ([]*entity.Absent, er
 	return absents, nil
 }
 
-func (u regulationUsecase) DeleteRegulation(ctx context.Context, ID uint64) error {
-	// delete a regulation
-	err := u.regulationService.Delete(ctx, ID)
+func (u docUsecase) DeleteDoc(ctx context.Context, ID uint64) error {
+	// delete a doc
+	err := u.docService.Delete(ctx, ID)
 	if err != nil {
 		u.logging.Error(err)
 		return err
 	}
 	// delete the id-pseudoId relationship
-	err = u.pseudoRegulationService.DeleteRelationship(ctx, ID)
+	err = u.pseudoDocService.DeleteRelationship(ctx, ID)
 	if err != nil {
 		u.logging.Error(err)
 		return err
@@ -109,9 +109,9 @@ func (u regulationUsecase) DeleteRegulation(ctx context.Context, ID uint64) erro
 	return nil
 }
 
-func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint64) error {
-	// get IDs for every chapter in the regulation
-	chIDs, err := u.chapterService.GetAllIds(ctx, regulationID)
+func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
+	// get IDs for every chapter in the doc
+	chIDs, err := u.chapterService.GetAllIds(ctx, docID)
 	if err != nil {
 		u.logging.Error(err)
 		return err
@@ -150,12 +150,12 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 				// link for an entire document.
 				if chID == "" {
 
-					// get relative regulation ID
-					regulationID, err := u.pseudoRegulationService.GetIDByPseudo(ctx, rID)
+					// get relative doc ID
+					docID, err := u.pseudoDocService.GetIDByPseudo(ctx, rID)
 					if err != nil {
 						u.logging.Error(err)
 					}
-					if regulationID == 0 {
+					if docID == 0 {
 						absent := entity.Absent{Pseudo: rID, ParagraphID: paragraph.ID}
 						err := u.absentService.Create(ctx, absent)
 						if err != nil {
@@ -163,19 +163,19 @@ func (u regulationUsecase) GenerateLinks(ctx context.Context, regulationID uint6
 						}
 						continue
 					}
-					post := fmt.Sprintf("%d'>", regulationID)
+					post := fmt.Sprintf("%d'>", docID)
 					content = strings.Replace(content, aLink, "<a href='"+post, 1)
 				}
 
 				// link for a paragraph
-				// get relative regulation ID
-				regulationID, err := u.pseudoRegulationService.GetIDByPseudo(ctx, rID)
+				// get relative doc ID
+				docID, err := u.pseudoDocService.GetIDByPseudo(ctx, rID)
 				if err != nil {
 					u.logging.Error(err)
 				}
 
 				// if id was not found - absent
-				if regulationID == 0 {
+				if docID == 0 {
 					absent := entity.Absent{Pseudo: rID, ParagraphID: paragraph.ID}
 					err := u.absentService.Create(ctx, absent)
 					if err != nil {

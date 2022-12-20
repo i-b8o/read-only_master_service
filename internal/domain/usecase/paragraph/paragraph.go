@@ -14,7 +14,7 @@ type ParagraphService interface {
 }
 
 type ChapterService interface {
-	GetRegulationIdByChapterId(ctx context.Context, ID uint64) (uint64, error)
+	GetDocIdByChapterId(ctx context.Context, ID uint64) (uint64, error)
 }
 
 type paragraphUsecase struct {

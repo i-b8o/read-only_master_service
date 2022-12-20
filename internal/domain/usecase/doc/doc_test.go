@@ -1,4 +1,4 @@
-package usecase_regulation
+package usecase_doc
 
 import (
 	"testing"

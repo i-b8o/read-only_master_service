@@ -1,9 +1,9 @@
 package usecase_chapter
 
 type CreateChapterInput struct {
-	Name         string
-	Num          string
-	RegulationID uint64
+	Name  string
+	Num   string
+	DocID uint64
 }
 
 type CreateChapterOutput struct {

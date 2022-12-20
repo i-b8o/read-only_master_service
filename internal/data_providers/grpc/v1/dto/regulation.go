@@ -6,10 +6,10 @@ import (
 	wr_pb "github.com/i-b8o/read-only_contracts/pb/writer/v1"
 )
 
-func CreateRegulationsFromGetRegulationsResponse(resp *wr_pb.GetRegulationsResponse) (regulations []entity.Regulation) {
-	for _, r := range resp.Regulations {
-		regulation := entity.Regulation{Id: r.ID, Name: r.Name, Abbreviation: r.Abbreviation, Title: &r.Title}
-		regulations = append(regulations, regulation)
+func CreateDocsFromGetDocsResponse(resp *wr_pb.GetDocsResponse) (docs []entity.Doc) {
+	for _, r := range resp.Docs {
+		doc := entity.Doc{Id: r.ID, Name: r.Name, Abbreviation: r.Abbreviation, Title: &r.Title}
+		docs = append(docs, doc)
 	}
-	return regulations
+	return docs
 }

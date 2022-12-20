@@ -34,9 +34,9 @@ func (cs *chapterStorage) GetAllIds(ctx context.Context, ID uint64) ([]uint64, e
 	return resp.IDs, err
 }
 
-func (cs *chapterStorage) GetRegulationIdByChapterId(ctx context.Context, ID uint64) (uint64, error) {
-	req := &wr_pb.GetRegulationIdByChapterIdRequest{ID: ID}
-	resp, err := cs.client.GetRegulationId(ctx, req)
+func (cs *chapterStorage) GetDocIdByChapterId(ctx context.Context, ID uint64) (uint64, error) {
+	req := &wr_pb.GetDocIdByChapterIdRequest{ID: ID}
+	resp, err := cs.client.GetDocId(ctx, req)
 	if err != nil {
 		return 0, err
 	}
