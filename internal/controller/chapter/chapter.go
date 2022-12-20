@@ -32,5 +32,3 @@ func (s *ChapterGrpcController) Create(ctx context.Context, req *pb.CreateChapte
 	}
 	return &pb.CreateChapterResponse{ID: id}, nil
 }
-
-// TODO GetAll
