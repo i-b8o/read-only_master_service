@@ -11,13 +11,16 @@ func DocFromCreateDocRequest(req *pb.CreateDocRequest) entity.Doc {
 		Name:         req.DocName,
 		Pseudo:       req.PseudoId,
 		Abbreviation: req.Abbreviation,
-		Title:        &req.Title,
+		Header:       &req.Header,
+		Title:        req.Title,
+		Description:  req.Description,
+		Keywords:     req.Keywords,
 	}
 }
 
 func DocsFromDocs(domainDocs []entity.Doc) (docs []*pb.Doc) {
 	for _, r := range domainDocs {
-		doc := pb.Doc{ID: r.Id, DocName: r.Name, Abbreviation: r.Abbreviation, Title: *r.Title}
+		doc := pb.Doc{ID: r.Id, DocName: r.Name, Abbreviation: r.Abbreviation, Header: *r.Header}
 		docs = append(docs, &doc)
 	}
 	return docs

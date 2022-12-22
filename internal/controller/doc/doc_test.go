@@ -176,7 +176,7 @@ func TestGetAll(t *testing.T) {
 	}{
 		{
 			input:    &pb.Empty{},
-			expected: &pb.GetAllDocsResponse{Docs: []*pb.Doc{&pb.Doc{ID: 1, DocName: "Имя первой записи", Abbreviation: "Аббревиатура первой записи", Title: "Заголовок первой записи"}}},
+			expected: &pb.GetAllDocsResponse{Docs: []*pb.Doc{&pb.Doc{ID: 1, DocName: "Имя первой записи", Abbreviation: "Аббревиатура первой записи", Header: "Заголовок первой записи"}}},
 			err:      nil,
 		},
 	}

@@ -8,7 +8,7 @@ import (
 
 func CreateDocsFromGetDocsResponse(resp *wr_pb.GetDocsResponse) (docs []entity.Doc) {
 	for _, r := range resp.Docs {
-		doc := entity.Doc{Id: r.ID, Name: r.Name, Abbreviation: r.Abbreviation, Title: &r.Title}
+		doc := entity.Doc{Id: r.ID, Name: r.Name, Abbreviation: r.Abbreviation, Header: &r.Header, Title: r.Title, Description: r.Description, Keywords: r.Keywords}
 		docs = append(docs, doc)
 	}
 	return docs

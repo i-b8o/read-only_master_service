@@ -7,7 +7,10 @@ type Doc struct {
 	Pseudo       string     `json:"r_pseudo,omitempty"`
 	Name         string     `json:"name"`
 	Abbreviation string     `json:"abbreviation"`
-	Title        *string    `json:"title"`
+	Header       *string    `json:"header"`
+	Title        string     `json:"title"`
+	Description  string     `json:"description"`
+	Keywords     string     `json:"keywords"`
 	CreatedAt    time.Time  `json:"created_at,omitempty"`
 	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
 	Chapters     []Chapter  `json:"chapters"`
