@@ -1,12 +1,14 @@
 package doc_dto
 
 import (
+	"fmt"
 	"read-only_master_service/internal/domain/entity"
 
 	pb "github.com/i-b8o/read-only_contracts/pb/master/v1"
 )
 
 func DocFromCreateDocRequest(req *pb.CreateDocRequest) entity.Doc {
+	fmt.Println("Controller Doc", req.Title, req.Description, req.Keywords)
 	return entity.Doc{
 		Name:         req.DocName,
 		Pseudo:       req.PseudoId,
