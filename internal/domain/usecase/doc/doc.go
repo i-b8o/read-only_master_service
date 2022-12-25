@@ -31,6 +31,7 @@ type AbsentService interface {
 }
 
 type PseudoDocService interface {
+	Exist(ctx context.Context, pseudoID string) (bool, error)
 	CreateRelationship(ctx context.Context, pseudoDoc entity.PseudoDoc) error
 	DeleteRelationship(ctx context.Context, docID uint64) error
 	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
@@ -52,6 +53,10 @@ type docUsecase struct {
 
 func NewDocUsecase(docService DocService, chapterService ChapterService, paragraphService ParagraphService, absentService AbsentService, pseudoDocService PseudoDocService, pseudoChapterService PseudoChapterService, logging logging.Logger) *docUsecase {
 	return &docUsecase{docService: docService, chapterService: chapterService, paragraphService: paragraphService, absentService: absentService, pseudoDocService: pseudoDocService, pseudoChapterService: pseudoChapterService, logging: logging}
+}
+
+func (u docUsecase) Exist(ctx context.Context, pseudo string) (bool, error) {
+	return u.pseudoDocService.Exist(ctx, pseudo)
 }
 
 func (u docUsecase) GetAll(ctx context.Context) ([]entity.Doc, error) {
@@ -205,7 +210,6 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 }
 
 func getIDs(url string) (regID, chID, pID string) {
-	fmt.Println(url)
 	matchedDoc, err := regexp.MatchString(`^\/document\/cons_doc_LAW_\d+\/$`, url)
 	if err != nil {
 		fmt.Println(err)
@@ -228,6 +232,5 @@ func getIDs(url string) (regID, chID, pID string) {
 		pID := splited[2]
 		return rID, chID, pID
 	}
-	fmt.Println(url)
 	return "", "", ""
 }

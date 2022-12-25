@@ -15,6 +15,28 @@ func NewPseudoDocStorage(client client.SQLiteClient) *pseudoDocStorage {
 	return &pseudoDocStorage{client: client}
 }
 
+func (prs *pseudoDocStorage) Exist(ctx context.Context, pseudoID string) (bool, error) {
+	const sql = `SELECT pseudo FROM pseudo_doc WHERE pseudo='$1'";`
+
+	rows, err := prs.client.Query(sql)
+	if err != nil {
+		return false, err
+	}
+
+	defer rows.Close()
+
+	var pseudo string
+	for rows.Next() {
+		if err = rows.Scan(
+			&pseudo,
+		); err != nil {
+			return false, err
+		}
+
+	}
+	return pseudo == pseudoID, err
+}
+
 func (prs *pseudoDocStorage) CreateRelationship(ctx context.Context, pseudoDoc entity.PseudoDoc) error {
 	const sql = `INSERT INTO pseudo_doc ("doc_id", "pseudo") VALUES ($1, $2)`
 	if _, err := prs.client.Exec(sql, pseudoDoc.ID, pseudoDoc.PseudoId); err != nil {

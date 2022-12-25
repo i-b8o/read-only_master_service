@@ -6,6 +6,7 @@ import (
 )
 
 type PseudoDocStorage interface {
+	Exist(ctx context.Context, pseudoID string) (bool, error)
 	CreateRelationship(ctx context.Context, pseudoDoc entity.PseudoDoc) error
 	DeleteRelationship(ctx context.Context, docID uint64) error
 	GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error)
@@ -29,4 +30,8 @@ func (prs pseudoDocService) DeleteRelationship(ctx context.Context, docID uint64
 
 func (prs pseudoDocService) GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error) {
 	return prs.storage.GetIDByPseudo(ctx, pseudoId)
+}
+
+func (prs pseudoDocService) Exist(ctx context.Context, pseudoID string) (bool, error) {
+	return prs.storage.Exist(ctx, pseudoID)
 }

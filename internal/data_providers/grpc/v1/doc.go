@@ -2,7 +2,6 @@ package grpc_adapter
 
 import (
 	"context"
-	"fmt"
 	"read-only_master_service/internal/data_providers/grpc/v1/dto"
 	"read-only_master_service/internal/domain/entity"
 
@@ -19,8 +18,7 @@ func NewDocStorage(client wr_pb.WriterDocGRPCClient) *docStorage {
 
 func (rs *docStorage) Create(ctx context.Context, doc entity.Doc) (uint64, error) {
 	// Mapping
-	fmt.Println("Doc: ", doc.Title, doc.Description, doc.Keywords)
-	req := &wr_pb.CreateDocRequest{Name: doc.Name, Abbreviation: doc.Abbreviation, Header: *doc.Header, Title: doc.Title, Description: doc.Description, Keywords: doc.Keywords}
+	req := &wr_pb.CreateDocRequest{Name: doc.Name, Title: doc.Title, Description: doc.Description, Keywords: doc.Keywords}
 	resp, err := rs.client.Create(ctx, req)
 	if err != nil {
 		return 0, err
@@ -39,6 +37,5 @@ func (rs *docStorage) GetAll(ctx context.Context) ([]entity.Doc, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(resp.Docs)
 	return dto.CreateDocsFromGetDocsResponse(resp), nil
 }

@@ -9,6 +9,7 @@ import (
 )
 
 type DocUsecase interface {
+	Exist(ctx context.Context, pseudo string) (bool, error)
 	GetAll(ctx context.Context) ([]entity.Doc, error)
 	CreateDoc(ctx context.Context, doc entity.Doc) (uint64, error)
 	GenerateLinks(ctx context.Context, docID uint64) error
@@ -25,6 +26,12 @@ func NewDocGrpcController(docUsecase DocUsecase) *DocGrpcController {
 	return &DocGrpcController{
 		docUsecase: docUsecase,
 	}
+}
+
+func (s *DocGrpcController) Exist(ctx context.Context, req *pb.ExistRequest) (*pb.ExistResponse, error) {
+	// create a doc and an id-pseudoId relationship
+	exist, err := s.docUsecase.Exist(ctx, req.PseudoId)
+	return &pb.ExistResponse{Exist: exist}, err
 }
 
 func (s *DocGrpcController) Create(ctx context.Context, req *pb.CreateDocRequest) (*pb.CreateDocResponse, error) {

@@ -9,6 +9,7 @@ import (
 func ChapterFromCreateChapterRequest(req *pb.CreateChapterRequest) entity.Chapter {
 	return entity.Chapter{
 		Pseudo:      req.PseudoId,
+		OrderNum:    req.OrderNum,
 		Name:        req.ChapterName,
 		Num:         req.ChapterNum,
 		DocID:       req.DocId,
