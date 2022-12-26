@@ -55,7 +55,7 @@ func TestCreate(t *testing.T) {
 		err      error
 	}{
 		{
-			input:    &pb.CreateDocRequest{PseudoId: "372952", DocName: "Имя правила", Abbreviation: "Аббревиатура", Title: "Заголовок"},
+			input:    &pb.CreateDocRequest{PseudoId: "372952", DocName: "Имя правила", Title: "Заголовок"},
 			expected: &pb.CreateDocResponse{ID: 2},
 			err:      nil,
 		},
@@ -86,7 +86,7 @@ func TestCreate(t *testing.T) {
 
 		assert.Equal(e.ID, id)
 		assert.Equal(test.input.DocName, name)
-		assert.Equal(test.input.Abbreviation, abbreviation)
+
 		assert.True(proto.Equal(test.expected, e), fmt.Sprintf("CreateDoc(%v)=%v want: %v", test.input, e, test.expected))
 		assert.Equal(test.err, err)
 		// pseudo doc
@@ -176,7 +176,7 @@ func TestGetAll(t *testing.T) {
 	}{
 		{
 			input:    &pb.Empty{},
-			expected: &pb.GetAllDocsResponse{Docs: []*pb.Doc{&pb.Doc{ID: 1, DocName: "Имя первой записи", Abbreviation: "Аббревиатура первой записи", Header: "Заголовок первой записи"}}},
+			expected: &pb.GetAllDocsResponse{Docs: []*pb.Doc{&pb.Doc{ID: 1, DocName: "Имя первой записи"}}},
 			err:      nil,
 		},
 	}

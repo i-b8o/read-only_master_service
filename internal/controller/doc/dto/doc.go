@@ -10,6 +10,9 @@ func DocFromCreateDocRequest(req *pb.CreateDocRequest) entity.Doc {
 	return entity.Doc{
 		Name:        req.DocName,
 		Pseudo:      req.PseudoId,
+		Type:        req.Type,
+		SubType:     req.SubType,
+		Rev:         req.Rev,
 		Title:       req.Title,
 		Description: req.Description,
 		Keywords:    req.Keywords,

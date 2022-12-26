@@ -148,8 +148,10 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 				if rID == "" {
 
 					absent := entity.Absent{Pseudo: href, ParagraphID: paragraph.ID}
-					u.absentService.Create(ctx, absent)
-					u.logging.Error(err)
+					err := u.absentService.Create(ctx, absent)
+					if err != nil {
+						u.logging.Error(err)
+					}
 					continue
 				}
 				// link for an entire document.
