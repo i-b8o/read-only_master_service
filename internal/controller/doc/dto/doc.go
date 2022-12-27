@@ -9,6 +9,7 @@ import (
 func DocFromCreateDocRequest(req *pb.CreateDocRequest) entity.Doc {
 	return entity.Doc{
 		Name:        req.DocName,
+		Header:      req.Header,
 		Pseudo:      req.PseudoId,
 		Type:        req.Type,
 		SubType:     req.SubType,

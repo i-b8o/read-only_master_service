@@ -6,6 +6,7 @@ type Doc struct {
 	Id          uint64     `json:"id,omitempty"`
 	Pseudo      string     `json:"r_pseudo,omitempty"`
 	Name        string     `json:"name"`
+	Header      string     `json:"header"`
 	Type        string     `json:"type"`
 	SubType     string     `json:"sub_type"`
 	Rev         string     `json:"rev"`

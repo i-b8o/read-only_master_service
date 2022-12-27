@@ -18,7 +18,7 @@ func NewDocStorage(client wr_pb.WriterDocGRPCClient) *docStorage {
 
 func (rs *docStorage) Create(ctx context.Context, doc entity.Doc) (uint64, error) {
 	// Mapping
-	req := &wr_pb.CreateDocRequest{Name: doc.Name, Type: doc.Type, SubType: doc.SubType, Rev: doc.Rev, Title: doc.Title, Description: doc.Description, Keywords: doc.Keywords}
+	req := &wr_pb.CreateDocRequest{Name: doc.Name, Header: doc.Header, Type: doc.Type, SubType: doc.SubType, Rev: doc.Rev, Title: doc.Title, Description: doc.Description, Keywords: doc.Keywords}
 	resp, err := rs.client.Create(ctx, req)
 	if err != nil {
 		return 0, err
