@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/i-b8o/logging v0.0.0-20221105180025-715df517e91e
-	github.com/i-b8o/read-only_contracts v0.0.0-20221228165221-5aa6e74f4b27
+	github.com/i-b8o/read-only_contracts v0.0.0-20221229175952-ecfdbd9a8c17
 	github.com/ilyakaznacheev/cleanenv v1.4.1
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/stretchr/testify v1.8.1
