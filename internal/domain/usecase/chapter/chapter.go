@@ -2,6 +2,7 @@ package usecase_chapter
 
 import (
 	"context"
+	"fmt"
 	"read-only_master_service/internal/domain/entity"
 
 	"github.com/i-b8o/logging"
@@ -36,6 +37,7 @@ func (u chapterUsecase) CreateChapter(ctx context.Context, chapter entity.Chapte
 	}
 
 	// create an id-pseudoId relationship
+	fmt.Printf("Chapter pseudoID: %s", chapter.Pseudo)
 	err = u.pseudoChapter.CreateRelationship(ctx, entity.PseudoChapter{ID: ID, PseudoId: chapter.Pseudo})
 	if err != nil {
 		u.logging.Error(err)

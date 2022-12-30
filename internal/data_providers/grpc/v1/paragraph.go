@@ -22,8 +22,8 @@ func (ps *paragraphStorage) CreateAll(ctx context.Context, paragraphs []entity.P
 	return err
 }
 
-func (ps *paragraphStorage) GetOne(ctx context.Context, paragraphId uint64) (entity.Paragraph, error) {
-	req := &wr_pb.GetOneParagraphRequest{ID: paragraphId}
+func (ps *paragraphStorage) GetOne(ctx context.Context, paragraphId, chapterID uint64) (entity.Paragraph, error) {
+	req := &wr_pb.GetOneParagraphRequest{ID: paragraphId, ChapterID: chapterID}
 	resp, err := ps.client.GetOne(ctx, req)
 	if err != nil {
 		return entity.Paragraph{}, err

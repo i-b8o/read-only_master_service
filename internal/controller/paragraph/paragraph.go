@@ -12,7 +12,7 @@ import (
 type ParagraphUsecase interface {
 	CreateParagraphs(ctx context.Context, paragraphs []entity.Paragraph) error
 	UpdateOne(ctx context.Context, id uint64, content string) error
-	GetOne(ctx context.Context, paragraphId uint64) (entity.Paragraph, error)
+	GetOne(ctx context.Context, paragraphId, chapterID uint64) (entity.Paragraph, error)
 }
 
 type ParagraphGrpcController struct {
@@ -33,7 +33,8 @@ func (s *ParagraphGrpcController) Update(ctx context.Context, req *pb.UpdatePara
 }
 func (s *ParagraphGrpcController) GetOne(ctx context.Context, req *pb.GetOneParagraphRequest) (*pb.GetOneParagraphResponse, error) {
 	ID := req.GetID()
-	resp, err := s.paragraphUsecase.GetOne(ctx, ID)
+	ChapterID := req.GetChapterID()
+	resp, err := s.paragraphUsecase.GetOne(ctx, ID, ChapterID)
 	return &pb.GetOneParagraphResponse{Content: resp.Content}, err
 }
 

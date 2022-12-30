@@ -10,7 +10,7 @@ import (
 type ParagraphService interface {
 	CreateAll(ctx context.Context, paragraphs []entity.Paragraph) error
 	UpdateOne(ctx context.Context, id uint64, content string) error
-	GetOne(ctx context.Context, paragraphId uint64) (entity.Paragraph, error)
+	GetOne(ctx context.Context, paragraphId, chapterID uint64) (entity.Paragraph, error)
 }
 
 type ChapterService interface {
@@ -29,8 +29,8 @@ func NewParagraphUsecase(paragraphService ParagraphService, chapterService Chapt
 func (u paragraphUsecase) UpdateOne(ctx context.Context, id uint64, content string) error {
 	return u.paragraphService.UpdateOne(ctx, id, content)
 }
-func (u paragraphUsecase) GetOne(ctx context.Context, paragraphId uint64) (entity.Paragraph, error) {
-	return u.paragraphService.GetOne(ctx, paragraphId)
+func (u paragraphUsecase) GetOne(ctx context.Context, paragraphId, chapterID uint64) (entity.Paragraph, error) {
+	return u.paragraphService.GetOne(ctx, paragraphId, chapterID)
 }
 func (u paragraphUsecase) CreateParagraphs(ctx context.Context, paragraphs []entity.Paragraph) error {
 	if len(paragraphs) == 0 {

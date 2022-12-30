@@ -9,7 +9,7 @@ type ParagraphStorage interface {
 	CreateAll(ctx context.Context, paragraphs []entity.Paragraph) error
 	GetParagraphsWithHrefs(ctx context.Context, chapterId uint64) ([]entity.Paragraph, error)
 	UpdateOne(ctx context.Context, id uint64, content string) error
-	GetOne(ctx context.Context, paragraphId uint64) (entity.Paragraph, error)
+	GetOne(ctx context.Context, paragraphId, chapterID uint64) (entity.Paragraph, error)
 }
 
 type paragraphService struct {
@@ -32,6 +32,6 @@ func (s *paragraphService) UpdateOne(ctx context.Context, id uint64, content str
 	return s.storage.UpdateOne(ctx, id, content)
 }
 
-func (s *paragraphService) GetOne(ctx context.Context, paragraphId uint64) (entity.Paragraph, error) {
-	return s.storage.GetOne(ctx, paragraphId)
+func (s *paragraphService) GetOne(ctx context.Context, paragraphId, chapterID uint64) (entity.Paragraph, error) {
+	return s.storage.GetOne(ctx, paragraphId, chapterID)
 }
