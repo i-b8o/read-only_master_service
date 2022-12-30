@@ -17,8 +17,8 @@ func NewAbsentStorage(client client.SQLiteClient) *absentStorage {
 
 // Create
 func (as *absentStorage) Create(ctx context.Context, absent entity.Absent) error {
-	sql := `INSERT INTO absent_reg ("pseudo", "paragraph_id") VALUES ($1,$2) `
-	if _, err := as.client.Exec(sql, absent.Pseudo, absent.ParagraphID); err != nil {
+	sql := `INSERT INTO absent_reg ("pseudo", "chapter_id", "paragraph_id") VALUES ($1,$2,$3) `
+	if _, err := as.client.Exec(sql, absent.Pseudo, absent.ChapterID, absent.ParagraphID); err != nil {
 		return err
 	}
 	return nil
@@ -26,7 +26,7 @@ func (as *absentStorage) Create(ctx context.Context, absent entity.Absent) error
 
 // Create
 func (as *absentStorage) GetAll(ctx context.Context) ([]*entity.Absent, error) {
-	sql := `select id, pseudo, done, paragraph_id from absent_reg `
+	sql := `select id, pseudo, done, chapter_id, paragraph_id from absent_reg`
 	var absents []*entity.Absent
 
 	rows, err := as.client.Query(sql)
@@ -38,7 +38,7 @@ func (as *absentStorage) GetAll(ctx context.Context) ([]*entity.Absent, error) {
 
 	for rows.Next() {
 		absent := &entity.Absent{}
-		err = rows.Scan(&absent.ID, &absent.Pseudo, &absent.Done, &absent.ParagraphID)
+		err = rows.Scan(&absent.ID, &absent.Pseudo, &absent.Done, &absent.ChapterID, &absent.ParagraphID)
 		if err != nil {
 			return nil, err
 		}

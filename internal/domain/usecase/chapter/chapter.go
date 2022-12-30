@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"read-only_master_service/internal/domain/entity"
-
-	"github.com/i-b8o/logging"
 )
 
 type ChapterService interface {
@@ -19,13 +17,11 @@ type PseudoChapter interface {
 
 type chapterUsecase struct {
 	chapterService ChapterService
-
-	pseudoChapter PseudoChapter
-	logging       logging.Logger
+	pseudoChapter  PseudoChapter
 }
 
-func NewChapterUsecase(chapterService ChapterService, pseudoChapter PseudoChapter, logging logging.Logger) *chapterUsecase {
-	return &chapterUsecase{chapterService: chapterService, pseudoChapter: pseudoChapter, logging: logging}
+func NewChapterUsecase(chapterService ChapterService, pseudoChapter PseudoChapter) *chapterUsecase {
+	return &chapterUsecase{chapterService: chapterService, pseudoChapter: pseudoChapter}
 }
 
 func (u chapterUsecase) CreateChapter(ctx context.Context, chapter entity.Chapter) (uint64, error) {

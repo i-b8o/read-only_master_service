@@ -6,8 +6,6 @@ import (
 	"read-only_master_service/internal/domain/entity"
 	"regexp"
 	"strings"
-
-	"github.com/i-b8o/logging"
 )
 
 type DocService interface {
@@ -48,11 +46,10 @@ type docUsecase struct {
 	absentService        AbsentService
 	pseudoDocService     PseudoDocService
 	pseudoChapterService PseudoChapterService
-	logging              logging.Logger
 }
 
-func NewDocUsecase(docService DocService, chapterService ChapterService, paragraphService ParagraphService, absentService AbsentService, pseudoDocService PseudoDocService, pseudoChapterService PseudoChapterService, logging logging.Logger) *docUsecase {
-	return &docUsecase{docService: docService, chapterService: chapterService, paragraphService: paragraphService, absentService: absentService, pseudoDocService: pseudoDocService, pseudoChapterService: pseudoChapterService, logging: logging}
+func NewDocUsecase(docService DocService, chapterService ChapterService, paragraphService ParagraphService, absentService AbsentService, pseudoDocService PseudoDocService, pseudoChapterService PseudoChapterService) *docUsecase {
+	return &docUsecase{docService: docService, chapterService: chapterService, paragraphService: paragraphService, absentService: absentService, pseudoDocService: pseudoDocService, pseudoChapterService: pseudoChapterService}
 }
 
 func (u docUsecase) Exist(ctx context.Context, pseudo string) (bool, error) {
@@ -63,26 +60,22 @@ func (u docUsecase) GetAll(ctx context.Context) ([]entity.Doc, error) {
 	return u.docService.GetAll(ctx)
 }
 
-func (u docUsecase) CreateDoc(ctx context.Context, doc entity.Doc) (uint64, error) {
+func (u docUsecase) CreateDoc(ctx context.Context, doc entity.Doc) (*uint64, error) {
 	// create a doc
 	ID, err := u.docService.Create(ctx, doc)
 	if err != nil {
-		u.logging.Error(err)
-		return 0, err
+		return nil, err
 	}
-
 	// create an id-pseudoId relationship
 	err = u.pseudoDocService.CreateRelationship(ctx, entity.PseudoDoc{ID: ID, PseudoId: doc.Pseudo})
 	if err != nil {
-		u.logging.Error(err)
-		return 0, err
+		return nil, err
 	}
 
 	// mark the doc as done
 	err = u.absentService.Done(ctx, doc.Pseudo)
 	if err != nil {
-		u.logging.Error(err)
-		return 0, err
+		return nil, err
 	}
 
 	return ID, nil
@@ -147,7 +140,7 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 				// something wrong with the link - absent
 				if rID == "" {
 
-					absent := entity.Absent{Pseudo: href, ParagraphID: paragraph.ID}
+					absent := entity.Absent{Pseudo: href, ChapterID: paragraph.ChapterID, ParagraphID: paragraph.ID}
 					err := u.absentService.Create(ctx, absent)
 					if err != nil {
 						u.logging.Error(err)
