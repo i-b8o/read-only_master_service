@@ -11,6 +11,7 @@ $(APP_BIN):
 clean:
 	rm -rf ./app/build || true
 
+
 git:
 	git add .
 	git commit -a -m "$m"
