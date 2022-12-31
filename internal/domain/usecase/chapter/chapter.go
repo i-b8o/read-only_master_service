@@ -28,7 +28,6 @@ func (u chapterUsecase) CreateChapter(ctx context.Context, chapter entity.Chapte
 	// create a chapter
 	ID, err := u.chapterService.Create(ctx, chapter)
 	if err != nil {
-		u.logging.Error(err)
 		return 0, err
 	}
 
@@ -36,7 +35,6 @@ func (u chapterUsecase) CreateChapter(ctx context.Context, chapter entity.Chapte
 	fmt.Printf("Chapter pseudoID: %s", chapter.Pseudo)
 	err = u.pseudoChapter.CreateRelationship(ctx, entity.PseudoChapter{ID: ID, PseudoId: chapter.Pseudo})
 	if err != nil {
-		u.logging.Error(err)
 		return 0, err
 	}
 	return ID, nil

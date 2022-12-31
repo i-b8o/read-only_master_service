@@ -40,11 +40,11 @@ func (pcs pseudoChapterService) DeleteRelationship(ctx context.Context, chapterI
 	return nil
 }
 
-func (pcs pseudoChapterService) GetIDByPseudo(ctx context.Context, pseudoId string) (*uint64, error) {
+func (pcs pseudoChapterService) GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error) {
 	id, err := pcs.storage.GetIDByPseudo(ctx, pseudoId)
 	if err != nil {
 		pcs.logging.Errorf("%d %v", id, err)
-		return nil, err
+		return 0, err
 	}
-	return &id, nil
+	return id, nil
 }

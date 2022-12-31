@@ -60,22 +60,22 @@ func (u docUsecase) GetAll(ctx context.Context) ([]entity.Doc, error) {
 	return u.docService.GetAll(ctx)
 }
 
-func (u docUsecase) CreateDoc(ctx context.Context, doc entity.Doc) (*uint64, error) {
+func (u docUsecase) CreateDoc(ctx context.Context, doc entity.Doc) (uint64, error) {
 	// create a doc
 	ID, err := u.docService.Create(ctx, doc)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	// create an id-pseudoId relationship
 	err = u.pseudoDocService.CreateRelationship(ctx, entity.PseudoDoc{ID: ID, PseudoId: doc.Pseudo})
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	// mark the doc as done
 	err = u.absentService.Done(ctx, doc.Pseudo)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	return ID, nil
@@ -84,10 +84,8 @@ func (u docUsecase) CreateDoc(ctx context.Context, doc entity.Doc) (*uint64, err
 func (u docUsecase) GetAbsents(ctx context.Context) ([]*entity.Absent, error) {
 	absents, err := u.absentService.GetAll(ctx)
 	if err != nil {
-		u.logging.Error(err)
 		return nil, err
 	}
-
 	return absents, nil
 }
 
@@ -95,13 +93,11 @@ func (u docUsecase) DeleteDoc(ctx context.Context, ID uint64) error {
 	// delete a doc
 	err := u.docService.Delete(ctx, ID)
 	if err != nil {
-		u.logging.Error(err)
 		return err
 	}
 	// delete the id-pseudoId relationship
 	err = u.pseudoDocService.DeleteRelationship(ctx, ID)
 	if err != nil {
-		u.logging.Error(err)
 		return err
 	}
 	return nil
@@ -111,7 +107,6 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 	// get IDs for every chapter in the doc
 	chIDs, err := u.chapterService.GetAllIds(ctx, docID)
 	if err != nil {
-		u.logging.Error(err)
 		return err
 	}
 
@@ -119,7 +114,6 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 		// get only paragraphs with links inside
 		paragraphs, err := u.paragraphService.GetParagraphsWithHrefs(ctx, chId)
 		if err != nil {
-			u.logging.Error(err)
 			return err
 		}
 
@@ -143,7 +137,7 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 					absent := entity.Absent{Pseudo: href, ChapterID: paragraph.ChapterID, ParagraphID: paragraph.ID}
 					err := u.absentService.Create(ctx, absent)
 					if err != nil {
-						u.logging.Error(err)
+						return err
 					}
 					continue
 				}
@@ -151,15 +145,12 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 				if chID == "" {
 
 					// get relative doc ID
-					docID, err := u.pseudoDocService.GetIDByPseudo(ctx, rID)
-					if err != nil {
-						u.logging.Error(err)
-					}
+					docID, _ := u.pseudoDocService.GetIDByPseudo(ctx, rID)
 					if docID == 0 {
 						absent := entity.Absent{Pseudo: rID, ParagraphID: paragraph.ID}
 						err := u.absentService.Create(ctx, absent)
 						if err != nil {
-							u.logging.Error(err)
+							return err
 						}
 						continue
 					}
@@ -169,17 +160,14 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 
 				// link for a paragraph
 				// get relative doc ID
-				docID, err := u.pseudoDocService.GetIDByPseudo(ctx, rID)
-				if err != nil {
-					u.logging.Error(err)
-				}
+				docID, _ := u.pseudoDocService.GetIDByPseudo(ctx, rID)
 
 				// if id was not found - absent
 				if docID == 0 {
 					absent := entity.Absent{Pseudo: rID, ParagraphID: paragraph.ID}
 					err := u.absentService.Create(ctx, absent)
 					if err != nil {
-						u.logging.Error(err)
+						return err
 					}
 					continue
 				}
@@ -187,7 +175,6 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 				// get relative chapter ID
 				chapterID, err := u.pseudoChapterService.GetIDByPseudo(ctx, chID)
 				if err != nil {
-					u.logging.Error(err)
 					return err
 				}
 
@@ -207,7 +194,6 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 func getIDs(url string) (regID, chID, pID string) {
 	matchedDoc, err := regexp.MatchString(`^\/document\/cons_doc_LAW_\d+\/$`, url)
 	if err != nil {
-		fmt.Println(err)
 		return "", "", ""
 	}
 	if matchedDoc {

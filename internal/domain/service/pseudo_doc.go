@@ -41,19 +41,20 @@ func (prs pseudoDocService) DeleteRelationship(ctx context.Context, docID uint64
 	return nil
 }
 
-func (prs pseudoDocService) GetIDByPseudo(ctx context.Context, pseudoId string) (*uint64, error) {
+func (prs pseudoDocService) GetIDByPseudo(ctx context.Context, pseudoId string) (uint64, error) {
 	id, err := prs.storage.GetIDByPseudo(ctx, pseudoId)
 	if err != nil {
 		prs.logging.Errorf("%s %v", pseudoId, err)
-		return nil, err
+		return 0, err
 	}
-	return &id, nil
+	return id, nil
 }
 
-func (prs pseudoDocService) Exist(ctx context.Context, pseudoID string) (*bool, error) {
-	exist, err := prs.storage.Exist(ctx, pseudoID)
+func (prs pseudoDocService) Exist(ctx context.Context, pseudoId string) (bool, error) {
+	exist, err := prs.storage.Exist(ctx, pseudoId)
 	if err != nil {
-		return nil, err
+		prs.logging.Errorf("%s %v", pseudoId, err)
+		return false, err
 	}
-	return &exist, nil
+	return exist, nil
 }

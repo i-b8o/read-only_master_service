@@ -16,7 +16,7 @@ func NewPseudoDocStorage(client client.SQLiteClient) *pseudoDocStorage {
 }
 
 func (prs *pseudoDocStorage) Exist(ctx context.Context, pseudoID string) (bool, error) {
-	const sql = `SELECT pseudo FROM pseudo_doc WHERE pseudo='$1'";`
+	const sql = `SELECT pseudo FROM pseudo_doc WHERE pseudo='$1'`
 
 	rows, err := prs.client.Query(sql)
 	if err != nil {

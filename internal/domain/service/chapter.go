@@ -22,13 +22,13 @@ func NewChapterService(storage ChapterStorage, logging logging.Logger) *chapterS
 	return &chapterService{storage: storage, logging: logging}
 }
 
-func (s chapterService) Create(ctx context.Context, chapter entity.Chapter) (*uint64, error) {
+func (s chapterService) Create(ctx context.Context, chapter entity.Chapter) (uint64, error) {
 	id, err := s.storage.Create(ctx, chapter)
 	if err != nil {
 		s.logging.Errorf("%v %v", chapter, err)
-		return nil, err
+		return 0, err
 	}
-	return &id, nil
+	return id, nil
 }
 func (s chapterService) GetAllIds(ctx context.Context, ID uint64) ([]uint64, error) {
 	IDs, err := s.storage.GetAllIds(ctx, ID)
@@ -39,11 +39,11 @@ func (s chapterService) GetAllIds(ctx context.Context, ID uint64) ([]uint64, err
 	return IDs, nil
 }
 
-func (s chapterService) GetDocIdByChapterId(ctx context.Context, ID uint64) (*uint64, error) {
+func (s chapterService) GetDocIdByChapterId(ctx context.Context, ID uint64) (uint64, error) {
 	id, err := s.storage.GetDocIdByChapterId(ctx, ID)
 	if err != nil {
 		s.logging.Errorf("%d %v", id, err)
-		return nil, err
+		return 0, err
 	}
-	return &id, nil
+	return id, nil
 }

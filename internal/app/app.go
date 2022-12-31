@@ -64,15 +64,15 @@ func NewApp(ctx context.Context, config *config.Config) (App, error) {
 	pseudoChapterProvider := sqlite_provider.NewPseudoChapterStorage(sqliteClient)
 	paragraphProvider := grpc_provider.NewParagraphStorage(paragraphGrpcClient)
 
-	docService := service.NewDocService(docProvider)
-	chapterService := service.NewChapterService(chapterProvider)
-	absentService := service.NewAbsentService(absentProvider)
-	pseudoDocService := service.NewPseudoDocService(pseudoDocProvider)
-	pseudoChapterService := service.NewPseudoChapterService(pseudoChapterProvider)
-	paragraphService := service.NewParagraphService(paragraphProvider)
+	docService := service.NewDocService(docProvider, logger)
+	chapterService := service.NewChapterService(chapterProvider, logger)
+	absentService := service.NewAbsentService(absentProvider, logger)
+	pseudoDocService := service.NewPseudoDocService(pseudoDocProvider, logger)
+	pseudoChapterService := service.NewPseudoChapterService(pseudoChapterProvider, logger)
+	paragraphService := service.NewParagraphService(paragraphProvider, logger)
 
-	docUsecase := doc_usecase.NewDocUsecase(docService, chapterService, paragraphService, absentService, pseudoDocService, pseudoChapterProvider, logger)
-	chapterUsecase := usecase_chapter.NewChapterUsecase(chapterService, pseudoChapterService, logger)
+	docUsecase := doc_usecase.NewDocUsecase(docService, chapterService, paragraphService, absentService, pseudoDocService, pseudoChapterProvider)
+	chapterUsecase := usecase_chapter.NewChapterUsecase(chapterService, pseudoChapterService)
 	paragraphUsecase := usecase_paragraph.NewParagraphUsecase(paragraphService, chapterService)
 
 	grpcServer := grpc.NewServer()

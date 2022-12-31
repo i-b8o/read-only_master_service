@@ -22,13 +22,13 @@ func NewDocService(storage DocStorage, logging logging.Logger) *docService {
 	return &docService{storage: storage, logging: logging}
 }
 
-func (s *docService) Create(ctx context.Context, doc entity.Doc) uint64 {
+func (s *docService) Create(ctx context.Context, doc entity.Doc) (uint64, error) {
 	id, err := s.storage.Create(ctx, doc)
 	if err != nil {
 		s.logging.Errorf("%v %v", doc, err)
-		return 0
+		return 0, err
 	}
-	return id
+	return id, nil
 }
 
 func (s *docService) Delete(ctx context.Context, docId uint64) error {

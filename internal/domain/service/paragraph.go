@@ -50,11 +50,11 @@ func (s *paragraphService) UpdateOne(ctx context.Context, id uint64, content str
 	return nil
 }
 
-func (s *paragraphService) GetOne(ctx context.Context, paragraphId, chapterID uint64) (*entity.Paragraph, error) {
+func (s *paragraphService) GetOne(ctx context.Context, paragraphId, chapterID uint64) (entity.Paragraph, error) {
 	paragraph, err := s.storage.GetOne(ctx, paragraphId, chapterID)
 	if err != nil {
 		s.logging.Errorf("%d %d %v", paragraphId, chapterID, err)
-		return nil, err
+		return entity.Paragraph{}, err
 	}
-	return &paragraph, nil
+	return paragraph, nil
 }
