@@ -40,8 +40,8 @@ func (ps *paragraphStorage) GetParagraphsWithHrefs(ctx context.Context, chapterI
 	return dto.ParagraphsFromGetParagraphsWithHrefsResponse(resp), nil
 }
 
-func (ps *paragraphStorage) UpdateOne(ctx context.Context, id uint64, content string) error {
-	req := &wr_pb.UpdateOneParagraphRequest{ID: id, Content: content}
+func (ps *paragraphStorage) UpdateOne(ctx context.Context, id, chapterID uint64, content string) error {
+	req := &wr_pb.UpdateOneParagraphRequest{ID: id, ChapterID: chapterID, Content: content}
 	_, err := ps.client.Update(ctx, req)
 	return err
 }

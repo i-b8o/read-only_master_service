@@ -11,7 +11,7 @@ import (
 
 type ParagraphUsecase interface {
 	CreateParagraphs(ctx context.Context, paragraphs []entity.Paragraph) error
-	UpdateOne(ctx context.Context, id uint64, content string) error
+	UpdateOne(ctx context.Context, id, chapterID uint64, content string) error
 	GetOne(ctx context.Context, paragraphId, chapterID uint64) (entity.Paragraph, error)
 }
 
@@ -27,8 +27,9 @@ func NewParagraphGrpcController(paragraphUsecase ParagraphUsecase) *ParagraphGrp
 }
 func (s *ParagraphGrpcController) Update(ctx context.Context, req *pb.UpdateParagraphRequest) (*pb.Empty, error) {
 	ID := req.GetID()
+	chapterID := req.GetChapterID()
 	content := req.Content
-	err := s.paragraphUsecase.UpdateOne(ctx, ID, content)
+	err := s.paragraphUsecase.UpdateOne(ctx, ID, chapterID, content)
 	return &pb.Empty{}, err
 }
 func (s *ParagraphGrpcController) GetOne(ctx context.Context, req *pb.GetOneParagraphRequest) (*pb.GetOneParagraphResponse, error) {

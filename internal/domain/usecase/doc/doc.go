@@ -19,7 +19,7 @@ type ChapterService interface {
 }
 type ParagraphService interface {
 	GetParagraphsWithHrefs(ctx context.Context, chapterId uint64) ([]entity.Paragraph, error)
-	UpdateOne(ctx context.Context, id uint64, content string) error
+	UpdateOne(ctx context.Context, id, chapterID uint64, content string) error
 }
 
 type AbsentService interface {
@@ -125,64 +125,80 @@ func (u docUsecase) GenerateLinks(ctx context.Context, docID uint64) error {
 			links := re.FindAllString(content, -1)
 
 			for _, aLink := range links {
-
+				fmt.Println("alink|" + aLink + "|")
+				// <a href='/document/cons_doc_LAW_435882/'>
 				hrefRaw := strings.Split(aLink, "<a href='")[1]
+				fmt.Println("hrefRaw:" + hrefRaw + "|")
 				href := strings.Split(hrefRaw, "'>")[0]
+				fmt.Println("href:" + href + "|")
 				// get if exist IDs for reggulation, chapter and paragrap
 				rID, chID, pID := getIDs(href)
-
+				fmt.Printf("first rID: %s, chID: %s, pID: %s", rID, chID, pID)
 				// something wrong with the link - absent
+				fmt.Println("0")
 				if rID == "" {
-
+					fmt.Println("1")
 					absent := entity.Absent{Pseudo: href, ChapterID: paragraph.ChapterID, ParagraphID: paragraph.ID}
 					err := u.absentService.Create(ctx, absent)
 					if err != nil {
+						fmt.Println("AAAAAAAAAAAAAAAAAA1")
 						return err
 					}
+					fmt.Println("2")
 					continue
 				}
 				// link for an entire document.
 				if chID == "" {
-
+					fmt.Println("3")
 					// get relative doc ID
 					docID, _ := u.pseudoDocService.GetIDByPseudo(ctx, rID)
+					fmt.Printf("docID: %d\n", docID)
 					if docID == 0 {
-						absent := entity.Absent{Pseudo: rID, ParagraphID: paragraph.ID}
+						fmt.Println("4")
+						absent := entity.Absent{Pseudo: rID, ChapterID: paragraph.ChapterID, ParagraphID: paragraph.ID}
 						err := u.absentService.Create(ctx, absent)
 						if err != nil {
+							fmt.Println("AAAAAAAAAAAAAAAAAA2")
+							return err
+						}
+						fmt.Println("5")
+						continue
+					}
+					fmt.Println("6")
+					post := fmt.Sprintf("%d'>", docID)
+					content = strings.Replace(content, aLink, "<a href='/doc/"+post, 1)
+					fmt.Printf("1 post:%s, content: %s", post, content)
+				} else {
+					fmt.Println("7")
+					// link for a paragraph
+					// get relative doc ID
+					docID, _ := u.pseudoDocService.GetIDByPseudo(ctx, rID)
+
+					// if id was not found - absent
+					if docID == 0 {
+						absent := entity.Absent{Pseudo: rID, ChapterID: paragraph.ChapterID, ParagraphID: paragraph.ID}
+						err := u.absentService.Create(ctx, absent)
+						if err != nil {
+							fmt.Println("AAAAAAAAAAAAAAAAAA3")
 							return err
 						}
 						continue
 					}
-					post := fmt.Sprintf("%d'>", docID)
-					content = strings.Replace(content, aLink, "<a href='"+post, 1)
-				}
 
-				// link for a paragraph
-				// get relative doc ID
-				docID, _ := u.pseudoDocService.GetIDByPseudo(ctx, rID)
-
-				// if id was not found - absent
-				if docID == 0 {
-					absent := entity.Absent{Pseudo: rID, ParagraphID: paragraph.ID}
-					err := u.absentService.Create(ctx, absent)
+					// get relative chapter ID
+					chapterID, err := u.pseudoChapterService.GetIDByPseudo(ctx, chID)
 					if err != nil {
+						fmt.Println("AAAAAAAAAAAAAAAAAA4")
 						return err
 					}
-					continue
+					fmt.Printf("rID: %s, chID: %s, pID: %s", rID, chID, pID)
+					post := fmt.Sprintf("%d#%s'>", chapterID, pID)
+					content = strings.Replace(content, aLink, "<a href='"+post, 1)
 				}
-
-				// get relative chapter ID
-				chapterID, err := u.pseudoChapterService.GetIDByPseudo(ctx, chID)
-				if err != nil {
-					return err
-				}
-
-				post := fmt.Sprintf("%d#%s'>", chapterID, pID)
-				content = strings.Replace(content, aLink, "<a href='"+post, 1)
 			}
 
-			err := u.paragraphService.UpdateOne(ctx, paragraph.ID, content)
+			fmt.Println("2 content|" + content + "|")
+			err := u.paragraphService.UpdateOne(ctx, paragraph.ID, paragraph.ChapterID, content)
 			if err != nil {
 				return err
 			}

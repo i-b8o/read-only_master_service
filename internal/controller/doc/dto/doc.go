@@ -31,7 +31,7 @@ func DocsFromDocs(domainDocs []entity.Doc) (docs []*pb.Doc) {
 func GetAbsentsResponseFromAbsents(domainAbsents []*entity.Absent) (response *pb.GetAbsentsResponse) {
 	var absents []*pb.MasterAbsent
 	for _, a := range domainAbsents {
-		absent := pb.MasterAbsent{ID: a.ID, Pseudo: a.Pseudo, Done: a.Done, ParagraphId: a.ParagraphID}
+		absent := pb.MasterAbsent{ID: a.ID, Pseudo: a.Pseudo, Done: a.Done, ChapterId: a.ChapterID, ParagraphId: a.ParagraphID}
 		absents = append(absents, &absent)
 	}
 	return &pb.GetAbsentsResponse{Absents: absents}
